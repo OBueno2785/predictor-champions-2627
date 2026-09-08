@@ -1,0 +1,7 @@
+pandas>=2.2
+numpy>=2.0
+scipy>=1.14
+requests>=2.32
+pydantic>=2.7
+python-dotenv>=1.0
+apscheduler>=3.10
