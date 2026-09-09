@@ -91,9 +91,9 @@ def _acumular_usage(total: dict, meta: dict) -> None:
 def render_contexto(ctx: dict) -> str:
     """Contexto compartido del partido para todos los agentes."""
     lines = [
-        f"# Partido: {ctx['home']} vs {ctx['away']}",
-        f"{ctx['group']} · {ctx['fecha']} · {ctx['estadio']} ({ctx['sede_pais']})",
-        f"Ventaja de localía aplicada a: {ctx['ventaja'] or 'nadie (cancha neutral)'}",
+        f"# Partido: {ctx['home']} vs {ctx['away']} (local vs visita)",
+        f"Champions League 2026-27 — {ctx.get('jornada', 'fase de liga')} · {ctx['fecha']}",
+        f"{ctx['home']} juega en casa (ventaja de localía aplicada).",
         "",
         "## Prior del modelo Dixon-Coles",
         f"- xG esperado: {ctx['home']} {ctx['xg_home']:.2f} — {ctx['xg_away']:.2f} {ctx['away']}",
@@ -101,16 +101,14 @@ def render_contexto(ctx: dict) -> str:
         f"- Marcadores más probables: {ctx['top_scores']}",
         "",
         f"## Forma reciente {ctx['home']} (últimos 5)",
-        ctx["form_home"],
-        f"  promedio: {ctx.get('form5_home', '—')}",
+        ctx.get("form_home", "—"),
         "",
         f"## Forma reciente {ctx['away']} (últimos 5)",
-        ctx["form_away"],
-        f"  promedio: {ctx.get('form5_away', '—')}",
+        ctx.get("form_away", "—"),
         "",
-        "## Situación de grupo (incentivos)",
-        f"- {ctx['home']}: posición {ctx.get('pos_home', '—')} · {ctx.get('outlook_home', '—')}",
-        f"- {ctx['away']}: posición {ctx.get('pos_away', '—')} · {ctx.get('outlook_away', '—')}",
+        "## Situación en la tabla suiza (incentivos)",
+        f"- {ctx['home']}: {ctx.get('pos_home', 'sin datos')}",
+        f"- {ctx['away']}: {ctx.get('pos_away', 'sin datos')}",
     ]
     if ctx.get("odds"):
         o = ctx["odds"]

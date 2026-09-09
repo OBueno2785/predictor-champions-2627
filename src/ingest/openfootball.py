@@ -13,13 +13,14 @@ import pandas as pd
 import requests
 
 BASE = "https://raw.githubusercontent.com/openfootball"
-SEASONS = ["2023-24", "2024-25", "2025-26"]
+SEASONS = ["2023-24", "2024-25", "2025-26", "2026-27"]
 # repo -> (archivo, etiqueta de competición)
 LIGAS = {
     "espana": ("1-liga.txt", "ESP"),
     "england": ("1-premierleague.txt", "ENG"),
     "deutschland": ("1-bundesliga.txt", "GER"),
     "italy": ("1-seriea.txt", "ITA"),
+    "austria": ("1-bundesliga.txt", "AUT"),
     "champions-league": ("cl.txt", "CL"),
 }
 
