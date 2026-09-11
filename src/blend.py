@@ -108,8 +108,10 @@ def rescale_matrix(P, target_1x2) -> np.ndarray:
 
 
 def score_summary(P, n_top: int = 3) -> dict:
-    """Resumen de marcadores de una matriz: marcador modal, top-n, goles
-    esperados y P(el favorito gana por 2+)."""
+    """Resumen de marcadores. score_pred = marcador más probable CONSISTENTE con
+    el resultado más probable (1X2): si gana el local, el marcador con más
+    probabilidad entre los de victoria local; ídem empate/visita. top_scores
+    muestra la distribución global real."""
     P = np.array(P, dtype=float)
     dim = P.shape[0]
     flat = sorted(((P[i, j], i, j) for i in range(dim) for j in range(dim)), reverse=True)
@@ -120,8 +122,16 @@ def score_summary(P, n_top: int = 3) -> dict:
     margen = idx[:, None] - idx[None, :]
     p_home_2 = float(P[margen >= 2].sum())
     p_away_2 = float(P[margen <= -2].sum())
+
+    # resultado dominante y marcador modal DENTRO de ese resultado
+    ph, pd_, pa = np.tril(P, -1).sum(), np.trace(P), np.triu(P, 1).sum()
+    reg = int(np.argmax([ph, pd_, pa]))
+    def _en_region(i, j):
+        return (reg == 0 and i > j) or (reg == 1 and i == j) or (reg == 2 and i < j)
+    best = max(((P[i, j], i, j) for i in range(dim) for j in range(dim) if _en_region(i, j)),
+              default=(0, top[0][0], top[0][1]))
     return {
-        "score_pred": f"{top[0][0]}-{top[0][1]}",
+        "score_pred": f"{best[1]}-{best[2]}",
         "top_scores": "; ".join(f"{i}-{j} ({p:.1%})" for i, j, p in top),
         "xg_home": round(xg_home, 2), "xg_away": round(xg_away, 2),
         "p_home_by2": round(p_home_2, 4), "p_away_by2": round(p_away_2, 4),
