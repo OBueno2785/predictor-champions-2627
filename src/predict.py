@@ -40,15 +40,20 @@ def train():
     return dixon_coles.fit(df), df
 
 
-def load_cal() -> tuple[float, float, float]:
+def load_cal() -> tuple[float, float, float, float]:
     T = g = 1.0
     w = 0.75
+    w_score = None
     if (OUT / "calibration.json").exists():
         c = json.loads((OUT / "calibration.json").read_text(encoding="utf-8"))
         T, g = c.get("temperature", 1.0), c.get("goals_mult", 1.0)
     if (OUT / "blend_config.json").exists():
-        w = json.loads((OUT / "blend_config.json").read_text(encoding="utf-8")).get("w_market", 0.75)
-    return T, g, w
+        cfg = json.loads((OUT / "blend_config.json").read_text(encoding="utf-8"))
+        w = cfg.get("w_market", 0.75)
+        w_score = cfg.get("w_score")
+    if w_score is None:
+        w_score = w  # retrocompat: marcador con el mismo peso que el 1X2
+    return T, g, w, w_score
 
 
 def _outc(P):
@@ -85,7 +90,7 @@ def _implied_rates(target, rho):
 
 
 def predict_match(model, home, away, market, cal, neutral=False, market_total=None):
-    T, g, w = cal
+    T, g, w, w_score = cal
     side = 0 if neutral else 1
     cubierto = home in model.attack and away in model.attack
     if cubierto:
@@ -98,10 +103,10 @@ def predict_match(model, home, away, market, cal, neutral=False, market_total=No
             fin = (1 - w) * mf + w * mkt_1x2
             fin = fin / fin.sum()
             fuente = "modelo+mercado"
-            # marcador con ritmos mezclados (volumen de goles del mercado al mismo w)
+            # marcador: volumen de goles mezclado modelo+mercado al peso FITEADO w_score
             lam_m, mu_m = _market_rates(mkt_1x2, market_total, model.rho)
-            P_sc = dixon_coles.matrix_from_rates((1 - w) * lam_md + w * lam_m,
-                                                 (1 - w) * mu_md + w * mu_m, model.rho)
+            P_sc = dixon_coles.matrix_from_rates((1 - w_score) * lam_md + w_score * lam_m,
+                                                 (1 - w_score) * mu_md + w_score * mu_m, model.rho)
         else:
             fin = mf
             fuente = "modelo"

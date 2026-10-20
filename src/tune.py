@@ -26,6 +26,11 @@ W_MARKET_DEFAULT = 0.75
 MIN_FOR_T = 20
 MIN_FOR_W = 15
 
+# fit del peso del MARCADOR-mercado (volumen de goles del marcador)
+SCORE_SHRINK_K = 20
+W_SCORE_MOVE_CAP = 0.15
+MIN_FOR_WSCORE = 5
+
 
 def _played_covered(model):
     """Partidos CL 26-27 jugados donde el modelo cubre ambos equipos."""
@@ -35,6 +40,80 @@ def _played_covered(model):
         if r.home_team in model.attack and r.away_team in model.attack:
             filas.append(r)
     return res, filas
+
+
+def _usable_market_results(model):
+    """(th, ta, [ph,pd,pa]_mercado, hs, as) de partidos jugados con cuotas 1X2
+    guardadas en outputs/debates y resultado real en data/cl_results.json."""
+    store = DATA / "cl_results.json"
+    res = {(r["home"], r["away"]): (r["home_score"], r["away_score"])
+           for r in json.loads(store.read_text(encoding="utf-8"))} if store.exists() else {}
+
+    def _result_for(home, away):
+        if (home, away) in res:
+            return res[(home, away)]
+        hm, am = odds.match_team(home, model.teams), odds.match_team(away, model.teams)
+        for (h, a), s in res.items():
+            if odds.match_team(h, model.teams) == hm and odds.match_team(a, model.teams) == am:
+                return s
+        return None
+
+    uniq = {}
+    for f in sorted((OUT / "debates").glob("*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not d.get("odds") or " vs " not in d.get("partido", ""):
+            continue
+        home, away = d["partido"].split(" vs ", 1)
+        th, ta = odds.match_team(home, model.teams), odds.match_team(away, model.teams)
+        if not (th and ta and th in model.attack and ta in model.attack):
+            continue  # el endpoint "modelo" necesita cobertura de ambos
+        sc = _result_for(home, away)
+        if sc is None:
+            continue
+        o = d["odds"]
+        uniq[(th, ta)] = ([o["p_home"], o["p_draw"], o["p_away"]], int(sc[0]), int(sc[1]))
+    return [(th, ta, mk, hs, a) for (th, ta), (mk, hs, a) in uniq.items()]
+
+
+def fit_score_weight(model, goals_mult, w_market):
+    """Ajusta w_score: peso del mercado en el VOLUMEN de goles del marcador.
+    Minimiza el NLL del marcador real bajo la matriz de goles con ritmos
+    mezclados (1-w)·modelo + w·mercado. Contracción hacia w_market y tope de
+    movimiento (muestra chica). Devuelve (w_final, n, w_opt|None)."""
+    from scipy.optimize import minimize_scalar
+    from src.predict import _market_rates
+
+    data = _usable_market_results(model)
+    n = len(data)
+    if n < MIN_FOR_WSCORE:
+        return w_market, n, None
+    rho = model.rho
+    pts = []
+    for th, ta, mk, hs, a in data:
+        lam_md, mu_md = model.rates(th, ta, adv_side=1)
+        lam_md, mu_md = lam_md * goals_mult, mu_md * goals_mult
+        lam_m, mu_m = _market_rates(np.array(mk, float), None, rho)
+        pts.append((lam_md, mu_md, lam_m, mu_m, hs, a))
+
+    def nll(w):
+        s = 0.0
+        for lam_md, mu_md, lam_m, mu_m, hs, a in pts:
+            P = dixon_coles.matrix_from_rates((1 - w) * lam_md + w * lam_m,
+                                              (1 - w) * mu_md + w * mu_m, rho)
+            dim = P.shape[0]
+            p = P[hs, a] if hs < dim and a < dim else 1e-12
+            s -= np.log(max(float(p), 1e-12))
+        return s
+
+    w_opt = float(minimize_scalar(nll, bounds=(0.0, 1.0), method="bounded").x)
+    shrink = n / (n + SCORE_SHRINK_K)
+    w_shr = w_market + shrink * (w_opt - w_market)
+    w_final = float(np.clip(w_shr, max(0.0, w_market - W_SCORE_MOVE_CAP),
+                            min(1.0, w_market + W_SCORE_MOVE_CAP)))
+    return w_final, n, w_opt
 
 
 def main():
@@ -81,11 +160,22 @@ def main():
     (OUT / "calibration.json").write_text(json.dumps(
         {"temperature": T, "goals_mult": goals_mult, "n_cl": n}, indent=1), encoding="utf-8")
 
-    # w_market: default apoyado en el mercado hasta tener muestra
+    # w_market (1X2): default apoyado en el mercado hasta tener muestra
     w = W_MARKET_DEFAULT
     print(f"  w_market: {w:.2f} (default apoyado en el mercado; se ajustará con ≥{MIN_FOR_W} partidos)")
-    (OUT / "blend_config.json").write_text(json.dumps({"w_market": w}, indent=1), encoding="utf-8")
-    print(f"\nEscrito calibration.json (T={T:.3f}, goles×{goals_mult:.3f}) y blend_config.json (w={w:.2f})")
+
+    # w_score: peso del mercado en el VOLUMEN de goles del marcador (fit propio)
+    w_score, n_ws, w_opt = fit_score_weight(model, goals_mult, w)
+    if w_opt is None:
+        print(f"  w_score: {w_score:.2f} (= w_market; muestra {n_ws} < {MIN_FOR_WSCORE})")
+    else:
+        print(f"  w_score: óptimo {w_opt:.2f} → {w_score:.3f} "
+              f"(contracción n/(n+{SCORE_SHRINK_K}), n={n_ws}, tope ±{W_SCORE_MOVE_CAP})")
+
+    (OUT / "blend_config.json").write_text(
+        json.dumps({"w_market": w, "w_score": w_score}, indent=1), encoding="utf-8")
+    print(f"\nEscrito calibration.json (T={T:.3f}, goles×{goals_mult:.3f}) y "
+          f"blend_config.json (w_market={w:.2f}, w_score={w_score:.3f})")
 
 
 if __name__ == "__main__":

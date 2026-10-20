@@ -33,7 +33,7 @@ def _pos_texto(res, team) -> str:
 
 
 def build_context(model, df, home, away, cal, market):
-    T, g, _ = cal
+    T, g, *_ = cal
     P = model.score_matrix(home, away, adv_side=1)
     ph, pd_, pa = model.outcome_probs(P)
     lam, mu = model.rates(home, away, adv_side=1)
@@ -63,7 +63,7 @@ def main():
     odds.fetch_results(DATA)
     model, df = train()
     cal = load_cal()
-    T, g, w = cal
+    T, g, w, w_score = cal
     home = next((t for t in model.teams if args[0].lower() in t.lower()), None)
     away = next((t for t in model.teams if args[1].lower() in t.lower()), None)
     if not home or not away:
@@ -107,7 +107,8 @@ def main():
     lam_md, mu_md = lam * g, mu * g
     if mkt is not None:
         lam_m, mu_m = _market_rates(np.array(mkt), market_total, model.rho)
-        lam_sc, mu_sc = (1 - w) * lam_md + w * lam_m, (1 - w) * mu_md + w * mu_m
+        lam_sc = (1 - w_score) * lam_md + w_score * lam_m
+        mu_sc = (1 - w_score) * mu_md + w_score * mu_m
     else:
         lam_sc, mu_sc = lam_md, mu_md
     P_sc = dixon_coles.matrix_from_rates(lam_sc, mu_sc, model.rho)
