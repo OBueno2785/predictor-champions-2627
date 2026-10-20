@@ -15,7 +15,7 @@ from src.agents.schemas import VeredictoJuez
 from src.calibration import temperature
 from src.ingest import odds, openfootball as of
 from src.model import dixon_coles
-from src.predict import DATA, OUT, load_cal, train
+from src.predict import DATA, OUT, load_cal, train, _market_rates
 
 DEBATES = OUT / "debates"
 
@@ -70,10 +70,11 @@ def main():
         sys.exit("Equipo no encontrado en el modelo (¿liga no disponible?).")
 
     events = odds.fetch_odds() or []
-    market = None
+    market = market_total = None
     for e in events:
         if odds.match_team(e["home_team"], model.teams) == home:
             market = odds.implied_probs(e)
+            market_total = odds.implied_total(e)
             break
     ctx = build_context(model, df, home, away, cal, market)
     print(f"  {home} vs {away} · prior {ctx['p_home']:.0%}/{ctx['p_draw']:.0%}/{ctx['p_away']:.0%}")
@@ -102,7 +103,14 @@ def main():
     bajas = bool(resultado.veredicto.bajas_confirmadas)
     blended, usa_mkt, override_ap = blend.blend_final(mf_cal, prior_cal, mkt, bajas)
     bh, bd, ba = (float(x) for x in blended)
-    P_sc = dixon_coles.matrix_from_rates(lam * g, mu * g, model.rho)
+    # marcador con ritmos mezclados modelo+mercado (volumen de goles de las casas)
+    lam_md, mu_md = lam * g, mu * g
+    if mkt is not None:
+        lam_m, mu_m = _market_rates(np.array(mkt), market_total, model.rho)
+        lam_sc, mu_sc = (1 - w) * lam_md + w * lam_m, (1 - w) * mu_md + w * mu_m
+    else:
+        lam_sc, mu_sc = lam_md, mu_md
+    P_sc = dixon_coles.matrix_from_rates(lam_sc, mu_sc, model.rho)
     resumen = blend.score_summary(blend.rescale_matrix(P_sc, [bh, bd, ba]), 3)
 
     v = resultado.veredicto

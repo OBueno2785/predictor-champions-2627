@@ -55,37 +55,60 @@ def _outc(P):
     return np.array([np.tril(P, -1).sum(), np.trace(P), np.triu(P, 1).sum()])
 
 
-def _implied_rates(target, rho):
-    th, _, ta = target
+def _p_over(lam, mu, rho, line):
+    P = dixon_coles.matrix_from_rates(lam, mu, rho)
+    dim = P.shape[0]
+    return sum(P[i, j] for i in range(dim) for j in range(dim) if i + j > line)
+
+
+def _market_rates(target_1x2, total, rho):
+    """Ritmos (lam, mu) implícitos en el mercado. Ajusta el 1X2 (ganador) y, si
+    hay mercado de totales, también P(Over línea) → así el marcador hereda el
+    VOLUMEN de goles de las casas, no solo el ganador."""
+    th, _, ta = target_1x2
 
     def loss(x):
         lam, mu = np.exp(x)
         ph, _, pa = _outc(dixon_coles.matrix_from_rates(lam, mu, rho))
-        return (ph - th) ** 2 + (pa - ta) ** 2
+        e = (ph - th) ** 2 + (pa - ta) ** 2
+        if total is not None:
+            e += (_p_over(lam, mu, rho, total["line"]) - total["p_over"]) ** 2
+        return e
 
     r = minimize(loss, [np.log(1.4), np.log(1.1)], method="Nelder-Mead")
     return np.exp(r.x)
 
 
-def predict_match(model, home, away, market, cal, neutral=False):
+# compat: ajuste de ritmos solo con 1X2 (sin totales)
+def _implied_rates(target, rho):
+    return _market_rates(target, None, rho)
+
+
+def predict_match(model, home, away, market, cal, neutral=False, market_total=None):
     T, g, w = cal
     side = 0 if neutral else 1
     cubierto = home in model.attack and away in model.attack
     if cubierto:
         P = model.score_matrix(home, away, adv_side=side)
         mf = temperature.apply(_outc(P), T)
+        lam, mu = model.rates(home, away, adv_side=side)
+        lam_md, mu_md = lam * g, mu * g
         if market is not None:
-            fin = (1 - w) * mf + w * np.array([market["p_home"], market["p_draw"], market["p_away"]])
+            mkt_1x2 = np.array([market["p_home"], market["p_draw"], market["p_away"]])
+            fin = (1 - w) * mf + w * mkt_1x2
             fin = fin / fin.sum()
             fuente = "modelo+mercado"
+            # marcador con ritmos mezclados (volumen de goles del mercado al mismo w)
+            lam_m, mu_m = _market_rates(mkt_1x2, market_total, model.rho)
+            P_sc = dixon_coles.matrix_from_rates((1 - w) * lam_md + w * lam_m,
+                                                 (1 - w) * mu_md + w * mu_m, model.rho)
         else:
             fin = mf
             fuente = "modelo"
-        lam, mu = model.rates(home, away, adv_side=side)
-        P_sc = dixon_coles.matrix_from_rates(lam * g, mu * g, model.rho)
+            P_sc = dixon_coles.matrix_from_rates(lam_md, mu_md, model.rho)
     elif market is not None:
         fin = np.array([market["p_home"], market["p_draw"], market["p_away"]])
-        lam, mu = _implied_rates(fin, model.rho)
+        lam, mu = _market_rates(fin, market_total, model.rho)
         P_sc = dixon_coles.matrix_from_rates(lam, mu, model.rho)
         fuente = "mercado"
     else:
@@ -102,11 +125,12 @@ def predict_upcoming(model, cal) -> list:
         th = odds.match_team(e["home_team"], model.teams)
         ta = odds.match_team(e["away_team"], model.teams)
         mk = odds.implied_probs(e)
+        mt = odds.implied_total(e)
         h = th or e["home_team"]
         a = ta or e["away_team"]
         # si no está en el modelo, predecir solo con mercado
-        p = predict_match(model, th if th else "?", ta if ta else "?", mk, cal) if (th and ta) \
-            else (predict_match(model, "?", "?", mk, cal) if mk else None)
+        p = predict_match(model, th if th else "?", ta if ta else "?", mk, cal, market_total=mt) \
+            if (th and ta) else (predict_match(model, "?", "?", mk, cal, market_total=mt) if mk else None)
         if p is None:
             continue
         p["home"], p["away"] = e["home_team"], e["away_team"]

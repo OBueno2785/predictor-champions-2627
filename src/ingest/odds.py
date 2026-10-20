@@ -52,10 +52,34 @@ def fetch_odds() -> list | None:
     if not key:
         return None
     r = requests.get(f"{BASE}/odds", params={
-        "apiKey": key, "regions": "eu", "markets": "h2h", "oddsFormat": "decimal",
+        "apiKey": key, "regions": "eu", "markets": "h2h,totals", "oddsFormat": "decimal",
     }, timeout=60)
     r.raise_for_status()
     return r.json()
+
+
+def implied_total(event: dict) -> dict | None:
+    """Línea de goles del mercado (Over/Under) agregada por las casas: devuelve
+    la línea modal y la mediana de P(Over) sin margen. Informa el VOLUMEN de
+    goles del marcador (el 1X2 solo informa el ganador)."""
+    from collections import Counter
+    por_linea: dict = {}
+    for bk in event.get("bookmakers", []):
+        for mk in bk.get("markets", []):
+            if mk["key"] != "totals":
+                continue
+            pr = {(o["name"], o.get("point")): o["price"] for o in mk["outcomes"]}
+            puntos = {p for (_, p) in pr}
+            for pt in puntos:
+                ov, un = pr.get(("Over", pt)), pr.get(("Under", pt))
+                if ov and un:
+                    po = (1 / ov) / ((1 / ov) + (1 / un))  # devig
+                    por_linea.setdefault(pt, []).append(po)
+    if not por_linea:
+        return None
+    line = Counter({pt: len(v) for pt, v in por_linea.items()}).most_common(1)[0][0]
+    return {"line": float(line), "p_over": float(np.median(por_linea[line])),
+            "n_bookies": len(por_linea[line])}
 
 
 def implied_probs(event: dict) -> dict | None:
