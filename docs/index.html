@@ -8,22 +8,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
-/* Panel de jornada: banda oscura de navegación, contenido en tarjetas sobre fondo frío; números en condensada tabular */
+/* Panel de jornada: banda oscura de navegación, partidos como marcadores en filas de dos líneas; números en condensada tabular */
 :root {
   --bg: #F3F5F8; --surface: #FFFFFF; --surface-2: #F7F9FB; --line: #DDE3EA; --line-soft: #EDF0F4;
   --ink: #0B1220; --ink-2: #334155; --muted: #4A5565; --faint: #66707F;
   --local: #1E40AF; --visita: #C2410C; --empate: #94A3B8;
   --brand: #0B1220; --brand-ink: #FFFFFF; --brand-muted: #C9D2E0; --brand-active: #22304A;
-  --ok: #15803D; --ok-bg: #E8F5EC; --ok-strong: #DCFCE7; --ok-ink: #14532D;
+  --ok: #15803D; --ok-bg: #E8F5EC; --ok-strong: #DCFCE7; --ok-ink: #14532D; --ok-line: #86EFAC;
   --bad-bg: #FDECEC; --bad-ink: #7F1D1D;
   --warn: #B45309; --warn-bg: #FFF4E5; --warn-ink: #7C2D12;
-  --live: #DC2626; --live-ink: #B91C1C;
-  --code-bg: #0B1220; --code-ink: #E2E8F0;
+  --live: #DC2626; --live-ink: #B91C1C; --live-row: #FFFBFB;
   --chip-bg: #EEF2FF; --chip-ink: #1E3A8A; --seg-bg: #E3E8EF; --sel: #1E40AF;
+  --proy: #4ADE80;
   --crest-bg: transparent; --crest-pad: 0px;
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -31,12 +30,12 @@
     --ink: #E6EBF3; --ink-2: #C3CCDA; --muted: #9AA6B8; --faint: #8B97AA;
     --local: #7B98F7; --visita: #F2925A; --empate: #64748B;
     --brand: #060A14; --brand-ink: #FFFFFF; --brand-muted: #B7C2D4; --brand-active: #1C2740;
-    --ok: #4ADE80; --ok-bg: #12301F; --ok-strong: #14532D; --ok-ink: #A7F3C0;
+    --ok: #4ADE80; --ok-bg: #12301F; --ok-strong: #14532D; --ok-ink: #A7F3C0; --ok-line: #166534;
     --bad-bg: #3A1414; --bad-ink: #FCA5A5;
     --warn: #F59E0B; --warn-bg: #3A2410; --warn-ink: #FCD34D;
-    --live: #F87171; --live-ink: #FCA5A5;
-    --code-bg: #060A14; --code-ink: #E2E8F0;
+    --live: #F87171; --live-ink: #FCA5A5; --live-row: #1A1520;
     --chip-bg: #1E2A4A; --chip-ink: #C7D2FE; --seg-bg: #1D2840; --sel: #7B98F7;
+    --proy: #4ADE80;
     --crest-bg: #E6EBF3; --crest-pad: 2px;
     color-scheme: dark;
   }
@@ -46,12 +45,12 @@
   --ink: #E6EBF3; --ink-2: #C3CCDA; --muted: #9AA6B8; --faint: #8B97AA;
   --local: #7B98F7; --visita: #F2925A; --empate: #64748B;
   --brand: #060A14; --brand-ink: #FFFFFF; --brand-muted: #B7C2D4; --brand-active: #1C2740;
-  --ok: #4ADE80; --ok-bg: #12301F; --ok-strong: #14532D; --ok-ink: #A7F3C0;
+  --ok: #4ADE80; --ok-bg: #12301F; --ok-strong: #14532D; --ok-ink: #A7F3C0; --ok-line: #166534;
   --bad-bg: #3A1414; --bad-ink: #FCA5A5;
   --warn: #F59E0B; --warn-bg: #3A2410; --warn-ink: #FCD34D;
-  --live: #F87171; --live-ink: #FCA5A5;
-  --code-bg: #060A14; --code-ink: #E2E8F0;
+  --live: #F87171; --live-ink: #FCA5A5; --live-row: #1A1520;
   --chip-bg: #1E2A4A; --chip-ink: #C7D2FE; --seg-bg: #1D2840; --sel: #7B98F7;
+  --proy: #4ADE80;
   --crest-bg: #E6EBF3; --crest-pad: 2px;
   color-scheme: dark;
 }
@@ -62,7 +61,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 a { color: var(--local); }
 :focus-visible { outline: 3px solid var(--sel); outline-offset: 2px; border-radius: 6px; }
 .num { font-variant-numeric: tabular-nums; }
-.disp { font-family: var(--font-display); font-weight: 700; }
 
 /* cabecera */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--brand); color: var(--brand-ink); }
@@ -70,121 +68,132 @@ a { color: var(--local); }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--brand-ink); text-decoration: none; min-height: 44px; }
 .brand span { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; }
 .nav { display: flex; flex-wrap: wrap; gap: 4px; }
-.nav a { display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 8px; color: var(--brand-muted); text-decoration: none; font-weight: 600; font-size: 15px; }
+.nav a { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 8px; color: var(--brand-muted); text-decoration: none; font-weight: 600; font-size: 15px; }
 .nav a:hover { color: var(--brand-ink); }
 .nav a[aria-current="page"] { background: var(--brand-active); color: var(--brand-ink); }
 .conn { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--brand-muted); }
-.dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; flex: 0 0 auto; }
+.dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; flex: 0 0 auto; display: inline-block; }
 .conn.ok .dot { background: #4ADE80; }
 .conn.off .dot { background: #F87171; }
 
-main.wrap { padding-block: 28px 64px; display: flex; flex-direction: column; gap: 24px; }
+main.wrap { padding-block: 28px 64px; display: flex; flex-direction: column; gap: 20px; }
 .vhead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
 .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-h1 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(34px, 5vw, 44px); line-height: 1.05; text-wrap: balance; }
+h1 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.05; text-wrap: balance; }
 .sub { margin: 4px 0 0; color: var(--muted); font-size: 16px; }
 h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.15; text-wrap: balance; }
 .seg { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--seg-bg); border-radius: 12px; }
 .seg button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); font: 600 15px var(--font-body); cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(11, 18, 32, 0.14); }
 .cols { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
-.col-main { flex: 999 1 640px; min-width: 0; }
-.col-side { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.col-main { flex: 999 1 820px; min-width: 0; }
+.col-side { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .card-pad { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 16px 20px; }
 .meta { margin: 0; font-size: 14px; font-weight: 600; color: var(--muted); }
 .note { margin: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.tiny { font-size: 12px; color: var(--muted); }
 .empty { padding: 48px 20px; text-align: center; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .empty strong { color: var(--ink); font-size: 17px; }
+.big { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.cell-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: -1px; margin-right: 6px; }
+.legend-i { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
 
-/* escudos y chips */
+/* escudos, chips, barra 1X2 */
 .esc { width: 22px; height: 22px; object-fit: contain; flex: 0 0 auto; border-radius: 999px; background: var(--crest-bg); padding: var(--crest-pad); }
-.team { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; min-width: 0; }
-.team span { min-width: 0; overflow-wrap: anywhere; }
+.esc.e24 { width: 24px; height: 24px; }
+.esc.e26 { width: 26px; height: 26px; }
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .chip svg { flex: 0 0 auto; }
-.c-exacto { background: var(--ok-strong); color: var(--ok-ink); }
-.c-signo { background: var(--ok-bg); color: var(--ok-ink); }
+.c-exacto, .c-dif, .c-ganador { background: var(--ok-strong); color: var(--ok-ink); }
 .c-fallo { background: var(--bad-bg); color: var(--bad-ink); }
 .c-ajuste { background: var(--warn-bg); color: var(--warn-ink); }
 .c-vivo { background: var(--bad-bg); color: var(--live-ink); }
 .c-neutro { background: var(--seg-bg); color: var(--ink-2); }
-.pulse { width: 8px; height: 8px; border-radius: 999px; background: var(--live); animation: latido 1.4s ease-in-out infinite; }
+.c-va { background: transparent; border: 1px solid var(--ok-line); color: var(--ok); }
+.c-nosuma { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+.pulse { width: 7px; height: 7px; border-radius: 999px; background: var(--live); animation: latido 1.4s ease-in-out infinite; }
 @keyframes latido { 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
-
-/* barra 1X2 */
 .bar { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; }
 .bar.thin { height: 6px; border-radius: 3px; }
-.probs { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.probs { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
 .pL { color: var(--local); } .pE { color: var(--ink-2); } .pV { color: var(--visita); }
 .fav { font-weight: 700; }
 
-/* tabla de pronósticos */
-.tscroll { overflow-x: auto; }
-.ttable { min-width: 1080px; }
-.trow { display: grid; grid-template-columns: 60px minmax(220px, 1.5fr) minmax(190px, 1.25fr) 96px 124px 92px minmax(220px, 1.6fr); gap: 16px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line-soft); }
-.thead { padding-block: 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.cell-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
-.big { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
-.tiny { font-size: 12px; color: var(--muted); }
+/* marcador por equipo */
+.marc { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.marc .nm { flex: 1 1 auto; min-width: 0; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.marc .gl { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.marc .gl.vivo { color: var(--live-ink); }
+
+/* franja de resumen */
+.kstrip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.kstrip > div { display: flex; flex-direction: column; gap: 2px; padding: 16px 20px; background: var(--surface); }
+.kstrip .lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.kstrip .val { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.kstrip .subk { font-size: 13px; color: var(--muted); }
+
+/* lista de pronósticos */
+.lista-head, .fila-g { display: grid; grid-template-columns: 96px minmax(220px, 1.6fr) minmax(170px, 1.1fr) 112px 104px; column-gap: 16px; }
+.lista-head { padding: 10px 20px; background: var(--surface-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.fila { display: flex; flex-direction: column; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--line-soft); }
+.fila.vivo { background: var(--live-row); }
+.fila-g { grid-template-areas: "est part prob pron pts" "est part prob ver pts"; row-gap: 6px; align-items: center; }
+.a-est { grid-area: est; } .a-part { grid-area: part; } .a-prob { grid-area: prob; }
+.a-pron { grid-area: pron; align-self: end; } .a-ver { grid-area: ver; align-self: start; } .a-pts { grid-area: pts; }
+.nota-l { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 8px; padding-left: 112px; font-size: 14px; line-height: 1.4; color: var(--ink-2); }
 .mlabel { display: none; }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 14px 20px; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 13px; color: var(--muted); }
-.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: -1px; margin-right: 6px; }
+.foot-l { padding: 12px 20px; font-size: 13px; color: var(--muted); background: var(--surface-2); border-top: 1px solid var(--line); }
 @media (max-width: 760px) {
-  .ttable { min-width: 0; }
-  .thead { display: none; }
-  .trow { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .trow > .span-all { grid-column: 1 / -1; }
-  .mlabel { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .lista-head { display: none; }
+  .fila-g { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "est pron" "part part" "prob prob" "ver pts"; row-gap: 12px; }
+  .a-est { flex-direction: row; align-items: center; gap: 8px; }
+  .a-pron { flex-direction: row; align-items: baseline; gap: 8px; justify-self: end; align-self: center; }
+  .a-pron .big { font-size: 22px; }
+  .a-ver { align-self: center; }
+  .a-pts { flex-direction: row-reverse; align-items: baseline; gap: 8px; justify-self: end; }
+  .a-pts .big { font-size: 24px; }
+  .mlabel { display: inline; font-size: 13px; color: var(--muted); }
+  .nota-l { padding-left: 0; font-size: 13px; }
+  .kstrip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kstrip > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .kstrip .val { font-size: 28px; }
 }
 
 /* panel lateral */
-.rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.rules li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--ink-2); }
-.rules label { flex: 1 1 auto; }
-.rules input { width: 64px; min-height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: 700 18px var(--font-display); text-align: center; }
-.stats3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.stat { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 10px; background: var(--bg); }
-.stat .lbl { font-size: 12px; font-weight: 700; color: var(--muted); }
-.stat .val { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.05; font-variant-numeric: tabular-nums; }
-.jobs { display: flex; flex-direction: column; gap: 8px; }
-.jobs button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; padding: 11px 14px; text-align: left; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--font-body); cursor: pointer; }
-.jobs button[aria-pressed="true"] { border: 2px solid var(--sel); background: var(--chip-bg); padding: 10px 13px; }
-.jobs b { font-size: 15px; } .jobs small { font-size: 13px; color: var(--muted); }
-.fld { display: flex; flex-direction: column; gap: 6px; }
-.fld > span { font-size: 13px; font-weight: 700; color: var(--ink-2); }
-.cmd { display: flex; gap: 8px; align-items: stretch; }
-.cmd code { flex: 1 1 auto; min-width: 0; display: block; padding: 11px 14px; border-radius: 8px; background: var(--code-bg); color: var(--code-ink); font: 13px var(--font-mono); overflow-x: auto; white-space: nowrap; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--local); color: #FFFFFF; font: 700 15px var(--font-body); cursor: pointer; }
-.btn.ghost { background: var(--seg-bg); color: var(--ink); }
-pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--bg); color: var(--ink-2); font: 12.5px/1.6 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rgrid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.rgrid input { width: 100%; min-height: 44px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: 700 20px var(--font-display); text-align: center; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 14px; border-radius: 10px; background: var(--bg); }
+.tile .lbl { font-size: 12px; font-weight: 700; color: var(--muted); }
+.tile .val { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tile .val small { font-size: 18px; color: var(--muted); font-weight: 700; }
 .alerts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .alerts li { display: flex; gap: 10px; font-size: 14px; line-height: 1.4; color: var(--ink-2); }
 .alerts svg { flex: 0 0 auto; margin-top: 1px; }
 
 /* en vivo */
-.summary { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.summary li { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
-.mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 272px), 1fr)); gap: 14px; }
-.mcard { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; text-align: left; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--font-body); cursor: pointer; }
-.mcard[aria-pressed="true"] { border: 2px solid var(--sel); padding: 13px 15px; box-shadow: 0 4px 14px rgba(30, 64, 175, 0.14); }
-.mrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.mscore { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
-.mscore.pend { color: var(--empate); }
-.mfoot { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line-soft); width: 100%; }
-.detail-top { padding: 20px; background: var(--brand); color: var(--brand-ink); border-radius: 14px 14px 0 0; display: flex; flex-direction: column; gap: 14px; }
-.vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
-.vs .side { display: flex; flex-direction: column; gap: 8px; font-weight: 700; font-size: 17px; line-height: 1.2; min-width: 0; }
-.vs .side.r { align-items: flex-end; text-align: right; }
-.crestbig { display: flex; width: 52px; height: 52px; border-radius: 999px; background: #FFFFFF; align-items: center; justify-content: center; }
-.crestbig img { width: 36px; height: 36px; object-fit: contain; }
-.vs .score { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
-.dt-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; min-height: 44px; padding: 0 20px; border-bottom: 1px solid var(--line-soft); font-size: 15px; }
-.dt-row.h { min-height: 0; padding-block: 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 10px; }
-.frow { display: grid; grid-template-columns: minmax(0, 1fr) auto 82px; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.proy { display: flex; align-items: center; gap: 18px; padding: 14px 20px; background: var(--brand); color: var(--brand-ink); border-radius: 14px; }
+.proy .t { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--brand-muted); }
+.proy .t b { color: var(--brand-ink); }
+.proy .n { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--proy); }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.vcard { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.vcard .marc .nm { font-size: 17px; }
+.vcard .marc .gl { font-size: 30px; }
+.vtop, .vfoot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.vfoot { padding-top: 10px; border-top: 1px solid var(--line-soft); }
+.vfoot .pts { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: var(--muted); }
+.vfoot .pts b { font-family: var(--font-display); font-size: 24px; line-height: 1; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 12px; }
+.frow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.frow .pr { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; padding-left: 16px; border-left: 1px solid var(--line-soft); }
+.frow .vd { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 92px; }
 
 /* estadísticas */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
@@ -203,6 +212,8 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
 .params dt { font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .params dd { margin: 0; }
 .params .pv { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.fld { display: flex; flex-direction: column; gap: 6px; }
+.fld > span { font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .tbars { display: flex; align-items: flex-end; gap: 14px; height: 150px; }
 .tbars > div { flex: 1 1 0%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; }
 .tbars .b { width: 100%; max-width: 48px; border-radius: 4px 4px 0 0; background: var(--local); }
@@ -228,7 +239,7 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
     </a>
     <nav class="nav" aria-label="Secciones">
       <a href="#jornada" data-view="jornada">Jornada</a>
-      <a href="#en-vivo" data-view="en-vivo">En vivo</a>
+      <a href="#en-vivo" data-view="en-vivo" id="nav-vivo">En vivo</a>
       <a href="#estadisticas" data-view="estadisticas">Estadísticas</a>
     </nav>
     <p class="conn" id="conn"><span class="dot"></span><span id="conn-txt">Conectando con los datos…</span></p>
@@ -238,63 +249,43 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
 <main class="wrap">
 
   <section id="v-jornada" aria-labelledby="j-title">
-    <div style="display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 20px">
       <div class="vhead">
         <div>
           <p class="eyebrow" id="j-eyebrow">Fase de liga</p>
           <h1 id="j-title">Pronósticos</h1>
-          <p class="sub" id="j-sub">Hora de Lima</p>
+          <p class="sub">Hora de Lima</p>
         </div>
         <div class="seg" role="group" aria-label="Fecha" id="j-fechas"></div>
       </div>
+      <section class="kstrip" aria-label="Resumen de la fecha" id="j-kpis"></section>
       <div class="cols">
         <section class="card col-main" aria-labelledby="h-pron" style="overflow: hidden">
           <div class="card-head">
             <h2 id="h-pron">Pronósticos</h2>
-            <p class="meta" id="j-resumen"></p>
+            <div class="legend-i">
+              <span><i class="sw" style="background: var(--local)"></i>Local</span>
+              <span><i class="sw" style="background: var(--empate)"></i>Empate</span>
+              <span><i class="sw" style="background: var(--visita)"></i>Visita</span>
+            </div>
           </div>
-          <div id="j-tabla">
+          <div id="j-lista">
             <div class="empty"><strong>Cargando pronósticos…</strong><span>Los partidos, probabilidades y marcadores llegan desde la base de datos del predictor.</span></div>
           </div>
-          <div class="legend">
-            <span><i class="sw" style="background: var(--local)"></i>Local</span>
-            <span><i class="sw" style="background: var(--empate)"></i>Empate</span>
-            <span><i class="sw" style="background: var(--visita)"></i>Visita</span>
-            <span>Ajuste por bajas: el debate detectó ausencias que el mercado aún no descontaba</span>
-            <span>Mercado: equipo sin liga en el modelo, se pronostica con las cuotas</span>
-          </div>
+          <p class="foot-l">Ajuste por bajas: el debate detectó ausencias que el mercado aún no descontaba. Mercado: equipo sin liga en el modelo, se pronostica con las cuotas.</p>
         </section>
 
         <aside class="col-side">
           <section class="card card-pad" aria-labelledby="h-pts">
-            <h2 id="h-pts">Estimador de puntos</h2>
-            <ul class="rules">
-              <li><label for="r-exacto">Marcador exacto</label><input id="r-exacto" type="number" min="0" max="20" step="1" inputmode="numeric"></li>
-              <li><label for="r-dif">Ganador y diferencia de goles</label><input id="r-dif" type="number" min="0" max="20" step="1" inputmode="numeric"></li>
-              <li><label for="r-ganador">Solo el ganador</label><input id="r-ganador" type="number" min="0" max="20" step="1" inputmode="numeric"></li>
-            </ul>
-            <div class="stats3" id="pts-stats"></div>
-            <p class="note" id="pts-nota"></p>
+            <h2 id="h-pts" style="font-size: 24px">Estimador de puntos</h2>
+            <div class="rgrid">
+              <label for="r-exacto">Exacto<input id="r-exacto" type="number" min="0" max="20" step="1" inputmode="numeric"></label>
+              <label for="r-dif">Ganador + dif.<input id="r-dif" type="number" min="0" max="20" step="1" inputmode="numeric"></label>
+              <label for="r-ganador">Ganador<input id="r-ganador" type="number" min="0" max="20" step="1" inputmode="numeric"></label>
+            </div>
+            <div class="tiles" id="pts-tiles"></div>
+            <p class="note">El marcador mostrado ya es el que más puntos da en promedio: elegir otro no mejoró la regla en 258 partidos de Champions.</p>
           </section>
-
-          <section class="card card-pad" aria-labelledby="h-run">
-            <h2 id="h-run">Ejecutar modelo</h2>
-            <div class="jobs" role="group" aria-label="Tarea" id="jobs"></div>
-            <div class="fld" id="fld-fecha">
-              <span>Fecha a debatir</span>
-              <div class="seg" role="group" aria-label="Fecha a debatir" id="debate-fecha"></div>
-            </div>
-            <div class="fld">
-              <span>Comando · en la carpeta Predictor_Champions_2627</span>
-              <div class="cmd"><code id="cmd"></code><button type="button" class="btn ghost" id="copiar">Copiar</button></div>
-            </div>
-            <p class="note">El navegador no puede ejecutar el modelo en tu PC. Copia el comando en la terminal del proyecto, o pídeselo a Claude en tu sesión; la página se actualiza sola cuando llegan los datos nuevos.</p>
-            <div class="fld" style="padding-top: 12px; border-top: 1px solid var(--line-soft)">
-              <span id="ult-titulo">Última ejecución</span>
-              <pre class="log" id="ult-log">—</pre>
-            </div>
-          </section>
-
           <section class="card card-pad" aria-labelledby="h-avisos">
             <h2 id="h-avisos" style="font-size: 22px">Avisos</h2>
             <ul class="alerts" id="avisos"><li>Sin avisos.</li></ul>
@@ -306,32 +297,27 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
 
   <section id="v-en-vivo" aria-labelledby="v-title" hidden>
     <div style="display: flex; flex-direction: column; gap: 24px">
-      <div class="vhead">
-        <div>
+      <div class="vhead" style="align-items: stretch">
+        <div style="display: flex; flex-direction: column; justify-content: flex-end">
           <p class="eyebrow" id="v-eyebrow">Hora de Lima</p>
           <h1 id="v-title">En vivo</h1>
         </div>
-        <ul class="summary" aria-label="Resumen" id="v-resumen"></ul>
+        <div class="proy" id="v-proy" hidden></div>
       </div>
-      <div class="cols">
-        <section class="col-main" aria-labelledby="h-vivo" style="display: flex; flex-direction: column; gap: 14px">
-          <h2 id="h-vivo">Partidos</h2>
-          <div class="mgrid" id="v-cards"><div class="empty card"><strong>Cargando partidos…</strong></div></div>
-        </section>
-        <section class="card col-side" aria-labelledby="h-det" id="v-detalle" style="gap: 0"></section>
-      </div>
-      <section aria-labelledby="h-fin" style="display: flex; flex-direction: column; gap: 14px" id="v-fin-wrap">
-        <div class="vhead" style="align-items: baseline">
-          <h2 id="h-fin">Finalizados</h2>
-          <p class="meta" id="v-fin-meta"></p>
-        </div>
+      <section aria-labelledby="h-juego" style="display: flex; flex-direction: column; gap: 14px" id="v-juego-wrap" hidden>
+        <div class="sec-h"><h2 id="h-juego">En juego</h2><p class="meta" id="v-juego-meta"></p></div>
+        <div class="mgrid" id="v-juego"></div>
+      </section>
+      <section aria-labelledby="h-prox" style="display: flex; flex-direction: column; gap: 14px" id="v-prox-wrap" hidden>
+        <div class="sec-h"><h2 id="h-prox">Por empezar</h2><p class="meta" id="v-prox-meta"></p></div>
+        <div class="mgrid" id="v-prox"></div>
+      </section>
+      <section aria-labelledby="h-fin" style="display: flex; flex-direction: column; gap: 14px" id="v-fin-wrap" hidden>
+        <div class="sec-h"><h2 id="h-fin">Finalizados hoy</h2><p class="meta" id="v-fin-meta"></p></div>
         <div class="fgrid" id="v-fin"></div>
       </section>
-      <p class="note" style="display: flex; flex-wrap: wrap; gap: 8px 22px">
-        <span style="display: inline-flex; align-items: center; gap: 6px"><span class="pulse" aria-hidden="true"></span><strong style="color: var(--live-ink)">EN VIVO</strong> con el minuto, mientras se juega</span>
-        <span>Por empezar, con la hora de inicio</span>
-        <span>Final: resultado contra el pronóstico</span>
-      </p>
+      <div class="empty card" id="v-vacio" hidden><strong>Cargando partidos…</strong></div>
+      <p class="note">El marcador en vivo llega de The Odds API y se revisa cada 4 minutos mientras se juega; el minuto es aproximado. «Si termina así» aplica la regla del estimador al marcador actual.</p>
     </div>
   </section>
 
@@ -344,7 +330,7 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
       <div class="kpis" id="s-kpis"></div>
       <div class="grid2">
         <section class="card" aria-labelledby="h-fechas" style="overflow: hidden">
-          <div class="card-head"><h2 id="h-fechas">Aciertos por fecha</h2></div>
+          <div class="card-head" style="border-bottom: 1px solid var(--line)"><h2 id="h-fechas">Aciertos por fecha</h2></div>
           <div id="s-fechas"></div>
           <p class="note" style="padding: 14px 20px">Solo cuentan las fechas con pronóstico guardado y resultado disponible. Los puntos usan la regla del estimador; las fechas sin detalle de pronósticos no suman puntos.</p>
         </section>
@@ -357,7 +343,7 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
           </div>
         </section>
         <section class="card" aria-labelledby="h-val" style="overflow: hidden">
-          <div class="card-head"><h2 id="h-val">Validación del motor</h2></div>
+          <div class="card-head" style="border-bottom: 1px solid var(--line)"><h2 id="h-val">Validación del motor</h2></div>
           <div id="s-val"></div>
           <p class="note" style="padding: 14px 20px" id="s-val-nota"></p>
         </section>
@@ -385,16 +371,16 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
 (function () {
   "use strict";
   var LIMA = "America/Lima";
-  var S = { partidos: [], modelo: null, est: null, fechaSel: null, vivoSel: null, tarea: "debate", fechaDebate: "today", conn: "cargando" };
+  var S = { partidos: [], modelo: null, est: null, fechaSel: null, conn: "cargando" };
   var regla = { exacto: 5, dif: 3, ganador: 2 };
   try { var guardada = JSON.parse(localStorage.getItem("predictor-cl-regla") || "null"); if (guardada) { regla = Object.assign(regla, guardada); } } catch (e) {}
 
   var ICON = {
-    reloj: '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
-    check: '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>',
-    doble: '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12.5l4 4 9-9.5"></path><path d="M10 15.5l1 1 9-9.5"></path></svg>',
-    cruz: '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"></path></svg>',
-    bandera: '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 4h12l-2.5 4.5L17 13H5"></path></svg>',
+    reloj: '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    check: '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>',
+    doble: '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12.5l4 4 9-9.5"></path><path d="M10 15.5l1 1 9-9.5"></path></svg>',
+    cruz: '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"></path></svg>',
+    bandera: '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 4h12l-2.5 4.5L17 13H5"></path></svg>',
     alerta: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5M12 17.5v.3"></path></svg>',
     info: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.5v.3"></path></svg>'
   };
@@ -428,7 +414,8 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
   }
   function valor(n) { return n === "exacto" ? regla.exacto : n === "dif" ? regla.dif : n === "ganador" ? regla.ganador : 0; }
   function esperado(q) { return Array.isArray(q) ? regla.exacto * q[0] + regla.dif * q[1] + regla.ganador * q[2] : null; }
-  function esFinal(m) { return m.estado === "final" && sc(m.real); }
+  function esFinal(m) { return m.estado === "final" && !!sc(m.real); }
+  function enVivo(m) { return m.estado === "en_vivo" && !!sc(m.real); }
   // minuto aproximado desde la hora de inicio (Lima, UTC-5): 15 min de descanso más un descuento típico del 1T
   function minuto(m) {
     if (m.minuto) return m.minuto;
@@ -440,7 +427,7 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
     if (e < 62) return "≈ descanso";
     return e - 17 >= 90 ? "≈90’+" : "≈" + (e - 17) + "’";
   }
-  function crest(slug, cls) { return slug ? '<img class="' + (cls || "esc") + '" src="escudos/' + esc(slug) + '.png" alt="" width="22" height="22" loading="lazy">' : ""; }
+  function crest(slug, cls) { return slug ? '<img class="esc ' + (cls || "") + '" src="escudos/' + esc(slug) + '.png" alt="" width="24" height="24" loading="lazy">' : ""; }
   function fechas() { var set = {}; S.partidos.forEach(function (m) { if (m.fecha) set[m.fecha] = true; }); return Object.keys(set).sort(); }
   function deFecha(f) { return S.partidos.filter(function (m) { return m.fecha === f; }).sort(function (a, b) { return (a.hora || "").localeCompare(b.hora || "") || (a.local || "").localeCompare(b.local || ""); }); }
   function fechaPorDefecto(fs) {
@@ -455,15 +442,72 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
       '<span style="flex: ' + (m.pe || 0) + ' 1 0%; background: var(--empate)"></span>' +
       '<span style="flex: ' + (m.pv || 0) + ' 1 0%; background: var(--visita)"></span></div>';
   }
-  function chipNivel(n) {
-    if (n === "exacto") return '<span class="chip c-exacto">' + ICON.doble + 'Exacto</span>';
-    if (n === "dif" || n === "ganador") return '<span class="chip c-signo">' + ICON.check + 'Signo</span>';
-    if (n === "nada") return '<span class="chip c-fallo">' + ICON.cruz + 'Falló</span>';
-    return "";
+  function probs(m) {
+    var max = Math.max(m.pl || 0, m.pe || 0, m.pv || 0);
+    return '<div class="probs"><span class="pL' + (m.pl === max ? " fav" : "") + '">L ' + m.pl + '%</span><span class="pE' + (m.pe === max ? " fav" : "") + '">E ' + m.pe + '%</span><span class="pV' + (m.pv === max ? " fav" : "") + '">V ' + m.pv + "%</span></div>";
   }
-  var SUBNIVEL = { exacto: "exacto", dif: "ganador y dif.", ganador: "ganador", nada: "sin puntos" };
+  var TXT = { exacto: "Exacto", dif: "Ganador + dif.", ganador: "Ganador", nada: "Falló" };
+  function chipFinal(n) {
+    if (!n) return "";
+    var ic = n === "exacto" ? ICON.doble : n === "nada" ? ICON.cruz : ICON.check;
+    return '<span class="chip c-' + (n === "nada" ? "fallo" : n) + '">' + ic + TXT[n] + "</span>";
+  }
+  function chipVa(n) {
+    if (!n) return "";
+    return n === "nada" ? '<span class="chip c-nosuma">Hoy no suma</span>' : '<span class="chip c-va">Va: ' + TXT[n].toLowerCase() + "</span>";
+  }
+  function marcador(m, cls) {
+    var r = sc(m.real), fin = esFinal(m), viv = enVivo(m);
+    var gl = function (i) { return (fin || viv) && r ? '<span class="gl' + (viv ? " vivo" : "") + '">' + r[i] + "</span>" : ""; };
+    var pL = fin && r[0] > r[1] ? 700 : 600, pV = fin && r[1] > r[0] ? 700 : 600;
+    return '<span class="marc">' + crest(m.escL, cls) + '<span class="nm" style="font-weight: ' + pL + '">' + esc(m.local) + "</span>" + gl(0) + "</span>" +
+      '<span class="marc">' + crest(m.escV, cls) + '<span class="nm" style="font-weight: ' + pV + '">' + esc(m.visita) + "</span>" + gl(1) + "</span>";
+  }
+  function resumen(ms) {
+    var o = { n: ms.length, fin: 0, viv: 0, signo: 0, exacto: 0, gan: 0, esp: 0, conEsp: 0, proy: 0 };
+    ms.forEach(function (m) {
+      var n = nivel(m.marcador, m.real);
+      if (esFinal(m)) { o.fin++; if (n !== "nada") o.signo++; if (n === "exacto") o.exacto++; o.gan += valor(n); }
+      else {
+        if (enVivo(m)) { o.viv++; o.proy += valor(n); }
+        var e = esperado(m.q); if (e != null) { o.esp += e; o.conEsp++; }
+      }
+    });
+    return o;
+  }
 
   /* ---------- Jornada ---------- */
+  function filaHTML(m) {
+    var fin = esFinal(m), viv = enVivo(m);
+    var n = (fin || viv) ? nivel(m.marcador, m.real) : null;
+    var est, ver = "", pts;
+    if (fin) est = '<span class="chip c-neutro">Final</span><span class="tiny num">' + esc(m.hora) + "</span>";
+    else if (viv) est = '<span class="chip c-vivo"><span class="pulse" aria-hidden="true"></span>EN VIVO</span><span class="tiny num" style="color: var(--live-ink); font-weight: 600">' + esc(minuto(m)) + "</span>";
+    else est = '<span class="num" style="font-size: 15px; font-weight: 600">' + esc(m.hora) + '</span><span class="tiny">por jugar</span>';
+    if (fin) {
+      ver = chipFinal(n);
+      var v = valor(n);
+      pts = '<span class="big" style="color: ' + (v > 0 ? "var(--ok)" : "var(--bad-ink)") + '">' + (v > 0 ? "+" + v : "0") + '</span><span class="tiny">ganados</span>';
+    } else if (viv) {
+      ver = chipVa(n);
+      var v2 = valor(n);
+      pts = '<span class="big" style="color: var(--faint)">' + (v2 > 0 ? "+" + v2 : "0") + '</span><span class="tiny">si termina así</span>';
+    } else {
+      var e = esperado(m.q);
+      pts = e == null ? '<span class="tiny">—</span>' : '<span class="big">' + fmt1(e) + '</span><span class="tiny">esperados</span>';
+    }
+    return '<div class="fila' + (viv ? " vivo" : "") + '" role="row"><div class="fila-g">' +
+      '<div class="a-est cell-stack" role="cell">' + est + "</div>" +
+      '<div class="a-part" role="cell" style="display: flex; flex-direction: column; gap: 6px; min-width: 0">' + marcador(m, "e24") +
+        '<span class="tiny">xG ' + fmtN(m.xgL, 2) + " – " + fmtN(m.xgV, 2) + " · " + esc(m.fuente) + "</span></div>" +
+      '<div class="a-prob" role="cell" style="display: flex; flex-direction: column; gap: 6px">' + barra(m) + probs(m) + "</div>" +
+      '<div class="a-pron cell-stack" role="cell"><span class="mlabel">Pronóstico</span><span class="big">' + esc(m.marcador) + "</span></div>" +
+      '<div class="a-ver" role="cell">' + ver + "</div>" +
+      '<div class="a-pts cell-stack" role="cell">' + pts + "</div>" +
+      "</div>" +
+      '<div class="nota-l">' + (m.ajuste ? '<span class="chip c-ajuste">' + ICON.bandera + "Ajuste por bajas</span>" : "") + "<span>" + esc(m.nota) + "</span></div></div>";
+  }
+
   function renderJornada() {
     var fs = fechas();
     if (!fs.length) return;
@@ -474,92 +518,38 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
     var ms = deFecha(S.fechaSel);
     $("j-eyebrow").textContent = "Fase de liga · " + (ms[0] && ms[0].jornada ? ms[0].jornada : "");
     $("j-title").textContent = larga(S.fechaSel);
-    var finales = ms.filter(esFinal), vivos = ms.filter(function (m) { return m.estado === "en_vivo"; });
-    $("j-sub").textContent = "Hora de Lima · " + ms.length + " partidos" + (vivos.length ? " · " + vivos.length + " en juego" : "") + (finales.length ? " · " + finales.length + " finalizados" : "");
-
-    var ganados = 0, esp = 0, signos = 0, exactos = 0, conEsp = 0;
-    ms.forEach(function (m) {
-      if (esFinal(m)) { var n = nivel(m.marcador, m.real); ganados += valor(n); if (n !== "nada") signos++; if (n === "exacto") exactos++; }
-      else { var e = esperado(m.q); if (e != null) { esp += e; conEsp++; } }
-    });
-    var partes = [];
-    if (finales.length) partes.push("Signo " + signos + "/" + finales.length, "Exacto " + exactos + "/" + finales.length, ganados + " puntos ganados");
-    if (conEsp) partes.push(fmt1(esp) + " puntos esperados");
-    $("j-resumen").textContent = partes.join(" · ") || ms.length + " partidos";
-
-    var filas = ms.map(function (m) {
-      var max = Math.max(m.pl || 0, m.pe || 0, m.pv || 0);
-      var n = esFinal(m) ? nivel(m.marcador, m.real) : null;
-      var resultado, puntos;
-      if (m.estado === "final" && sc(m.real)) {
-        resultado = '<span class="big">' + esc(m.real) + "</span>" + chipNivel(n);
-        var v = valor(n);
-        puntos = '<span class="big" style="color: ' + (n === "nada" ? "var(--bad-ink)" : n === "ganador" ? "var(--ink)" : "var(--ok)") + '">' + (v > 0 ? "+" + v : "0") + '</span><span class="tiny">' + SUBNIVEL[n] + "</span>";
-      } else if (m.estado === "en_vivo") {
-        resultado = '<span class="big">' + esc(m.real || "0-0") + '</span><span class="chip c-vivo"><span class="pulse" aria-hidden="true"></span>EN VIVO ' + esc(minuto(m)) + "</span>";
-        puntos = '<span class="tiny">en juego</span>';
-      } else {
-        resultado = '<span class="chip c-neutro">' + ICON.reloj + "Por jugar</span>";
-        var e2 = esperado(m.q);
-        puntos = e2 == null ? '<span class="tiny">—</span>' : '<span class="big">' + fmt1(e2) + '</span><span class="tiny">esperados</span>';
-      }
-      return '<div class="trow" role="row">' +
-        '<span role="cell" class="num span-all" style="font-weight: 600">' + esc(m.hora) + "</span>" +
-        '<div role="cell" class="cell-stack span-all">' +
-          '<span class="team">' + crest(m.escL) + "<span>" + esc(m.local) + "</span></span>" +
-          '<span class="team">' + crest(m.escV) + "<span>" + esc(m.visita) + "</span></span>" +
-          '<span class="tiny">xG ' + fmtN(m.xgL, 2) + " – " + fmtN(m.xgV, 2) + " · " + esc(m.fuente) + "</span></div>" +
-        '<div role="cell" class="span-all" style="display: flex; flex-direction: column; gap: 6px">' + barra(m) +
-          '<div class="probs num"><span class="pL' + (m.pl === max ? " fav" : "") + '">L ' + m.pl + '%</span><span class="pE' + (m.pe === max ? " fav" : "") + '">E ' + m.pe + '%</span><span class="pV' + (m.pv === max ? " fav" : "") + '">V ' + m.pv + "%</span></div></div>" +
-        '<div role="cell" class="cell-stack"><span class="mlabel">Pronóstico</span><span class="big">' + esc(m.marcador) + '</span><span class="tiny">más probable</span></div>' +
-        '<div role="cell" class="cell-stack"><span class="mlabel">Resultado</span>' + resultado + "</div>" +
-        '<div role="cell" class="cell-stack"><span class="mlabel">Puntos</span>' + puntos + "</div>" +
-        '<div role="cell" class="cell-stack span-all">' + (m.ajuste ? '<span class="chip c-ajuste">' + ICON.bandera + "Ajuste por bajas</span>" : "") +
-          '<span style="font-size: 14px; line-height: 1.35; color: var(--ink-2)">' + esc(m.nota) + "</span></div>" +
-        "</div>";
+    var o = resumen(ms);
+    var pend = o.n - o.fin - o.viv;
+    var subPart = [o.fin ? o.fin + (o.fin === 1 ? " final" : " finales") : "", o.viv ? o.viv + " en juego" : "", pend ? pend + " por jugar" : ""].filter(Boolean).join(" · ");
+    var kp = [
+      ["Partidos", String(o.n), subPart, "var(--ink)"],
+      ["Signo", o.fin ? o.signo + "/" + o.fin : "—", o.fin ? "de los finalizados" : "aún sin finales", "var(--ink)"],
+      ["Exacto", o.fin ? o.exacto + "/" + o.fin : "—", o.fin ? "de los finalizados" : "aún sin finales", "var(--ink)"],
+      ["Puntos ganados", String(o.gan), "de " + o.fin * regla.exacto + " posibles", "var(--ok)"],
+      ["Puntos en juego", o.conEsp ? fmt1(o.esp) : "—", o.conEsp ? "esperados" + (o.viv ? " · +" + o.proy + " si termina así" : "") : "fecha cerrada", "var(--local)"]
+    ];
+    $("j-kpis").innerHTML = kp.map(function (k) {
+      return '<div><span class="lbl">' + esc(k[0]) + '</span><span class="val" style="color: ' + k[3] + '">' + esc(k[1]) + '</span><span class="subk">' + esc(k[2]) + "</span></div>";
     }).join("");
-    $("j-tabla").innerHTML = '<div class="tscroll"><div class="ttable" role="table" aria-label="Pronósticos de la fecha">' +
-      '<div class="trow thead" role="row"><span role="columnheader">Hora</span><span role="columnheader">Partido</span><span role="columnheader">Probabilidades</span><span role="columnheader">Pronóstico</span><span role="columnheader">Resultado</span><span role="columnheader">Puntos</span><span role="columnheader">Debate</span></div>' +
-      filas + "</div></div>";
-
-    renderPuntos(ms, ganados, esp, conEsp);
+    $("j-lista").innerHTML = '<div style="overflow-x: auto"><div role="table" aria-label="Pronósticos de la fecha" style="min-width: min(100%, 820px)">' +
+      '<div class="lista-head" role="row"><span role="columnheader">Estado</span><span role="columnheader">Partido</span><span role="columnheader">Probabilidades</span><span role="columnheader">Pronóstico</span><span role="columnheader">Puntos</span></div>' +
+      ms.map(filaHTML).join("") + "</div></div>";
+    renderPuntos(o);
   }
 
-  function renderPuntos(ms, ganados, esp, conEsp) {
+  function renderPuntos(o) {
     var todos = S.partidos.filter(esFinal);
     var acum = todos.reduce(function (t, m) { return t + valor(nivel(m.marcador, m.real)); }, 0);
-    var finalesF = ms.filter(esFinal).length;
-    var celdas = [];
-    if (conEsp) celdas.push(["Esta fecha · esperado", fmt1(esp), "de " + (conEsp * regla.exacto)]);
-    if (finalesF) celdas.push(["Esta fecha · ganados", String(ganados), "de " + (finalesF * regla.exacto)]);
-    celdas.push(["Acumulado", String(acum), "de " + (todos.length * regla.exacto)]);
-    if (celdas.length < 3) celdas.push(["Por partido", todos.length ? fmtN(acum / todos.length, 2) : "—", todos.length + " jugados"]);
-    $("pts-stats").innerHTML = celdas.map(function (c) {
-      return '<div class="stat"><span class="lbl">' + esc(c[0]) + '</span><span class="val">' + esc(c[1]) + '</span><span class="tiny">' + esc(c[2]) + "</span></div>";
+    var tiles = [
+      ["Temporada", acum + " <small>/ " + todos.length * regla.exacto + "</small>", todos.length + " partidos" + (todos.length ? " · " + fmtN(acum / todos.length, 2) + " por partido" : "")],
+      [S.fechaSel === hoy() ? "Hoy" : "Esta fecha", o.gan + (o.conEsp ? " <small>+ " + fmt1(o.esp) + "</small>" : " <small>/ " + o.fin * regla.exacto + "</small>"), o.conEsp ? "ganados + esperados en juego" : "ganados"]
+    ];
+    $("pts-tiles").innerHTML = tiles.map(function (t) {
+      return '<div class="tile"><span class="lbl">' + esc(t[0]) + '</span><span class="val">' + t[1] + '</span><span class="tiny">' + esc(t[2]) + "</span></div>";
     }).join("");
-    $("pts-nota").textContent = "Acumulado sobre los " + todos.length + " partidos con pronóstico y resultado. Con la regla 5/3/2, el marcador mostrado ya es el que más puntos da en promedio: en 258 partidos de Champions, elegir el de máximo puntaje esperado no mejoró la regla actual (1,61 contra 1,62 por partido).";
   }
 
-  var TAREAS = [
-    { id: "tune", t: "Actualizar resultados y pesos", d: "Resultados de las últimas 3 fechas, reentreno y calibración · ~1 min", cmd: ".venv\\Scripts\\python -m src.tune" },
-    { id: "predict", t: "Pronósticos modelo + mercado", d: "Sin debate · ~1 min", cmd: ".venv\\Scripts\\python -m src.predict" },
-    { id: "debate", t: "Debate multiagente", d: "Detecta bajas de última hora · ~25 min · usa cuota de Claude", cmd: ".venv\\Scripts\\python -m src.debate_jornada " }
-  ];
-  function renderRun() {
-    $("jobs").innerHTML = TAREAS.map(function (t) {
-      return '<button type="button" data-tarea="' + t.id + '" aria-pressed="' + (t.id === S.tarea) + '"><b>' + esc(t.t) + "</b><small>" + esc(t.d) + "</small></button>";
-    }).join("");
-    $("fld-fecha").hidden = S.tarea !== "debate";
-    $("debate-fecha").innerHTML = [["today", "Hoy"], ["tomorrow", "Mañana"]].map(function (f) {
-      return '<button type="button" data-fdebate="' + f[0] + '" aria-pressed="' + (f[0] === S.fechaDebate) + '" style="flex: 1 1 0%">' + f[1] + "</button>";
-    }).join("");
-    var t = TAREAS.filter(function (x) { return x.id === S.tarea; })[0];
-    $("cmd").textContent = t.cmd + (t.id === "debate" ? S.fechaDebate : "");
-    var u = S.modelo && S.modelo.ultimaEjecucion;
-    if (u) {
-      $("ult-titulo").textContent = "Última ejecución · " + (u.tarea || "") + (u.fecha ? " · " + corta(u.fecha) : "");
-      $("ult-log").textContent = (u.lineas || []).join("\n") || "—";
-    }
+  function renderAvisos() {
     var av = (S.modelo && S.modelo.avisos) || [];
     if (av.length) {
       $("avisos").innerHTML = av.map(function (a) { return "<li>" + (a.tipo === "warn" ? ICON.alerta : ICON.info) + "<span>" + esc(a.texto) + "</span></li>"; }).join("");
@@ -567,80 +557,70 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
   }
 
   /* ---------- En vivo ---------- */
+  function cardHTML(m) {
+    var viv = enVivo(m);
+    var n = viv ? nivel(m.marcador, m.real) : null;
+    var top = viv ? '<span class="chip c-vivo"><span class="pulse" aria-hidden="true"></span>EN VIVO ' + esc(minuto(m)) + "</span>"
+                  : '<span class="chip c-neutro">' + ICON.reloj + esc(m.hora) + "</span>";
+    var pie;
+    if (viv) {
+      var v = valor(n);
+      pie = chipVa(n) + '<span class="pts">si termina así <b style="color: ' + (v > 0 ? "var(--ok)" : "var(--faint)") + '">' + (v > 0 ? "+" + v : "0") + "</b></span>";
+    } else {
+      var e = esperado(m.q);
+      pie = probs(m).replace('class="probs"', 'class="probs" style="flex: 1 1 auto"') + (e == null ? "" : '<span class="pts">esp. <b>' + fmt1(e) + "</b></span>");
+    }
+    return '<article class="vcard"><div class="vtop">' + top + '<span class="tiny">Pronóstico <strong style="color: var(--ink); font-size: 15px">' + esc(m.marcador) + "</strong></span></div>" +
+      '<div style="display: flex; flex-direction: column; gap: 8px">' + marcador(m, "e26") + "</div>" + barra(m, true) +
+      '<div class="vfoot">' + pie + "</div></article>";
+  }
+  function finalHTML(m) {
+    var n = nivel(m.marcador, m.real), v = valor(n);
+    return '<article class="frow"><div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">' + marcador(m, "") + "</div>" +
+      '<div class="pr"><span class="tiny">Pronóstico</span><span class="big" style="font-size: 24px">' + esc(m.marcador) + "</span></div>" +
+      '<div class="vd">' + chipFinal(n) + '<span class="big" style="font-size: 26px; color: ' + (v > 0 ? "var(--ok)" : "var(--bad-ink)") + '">' + (v > 0 ? "+" + v : "0") + "</span></div></article>";
+  }
+
   function renderVivo() {
     var fs = fechas();
-    if (!fs.length) return;
+    if (!fs.length) { $("v-vacio").hidden = false; return; }
+    $("v-vacio").hidden = true;
     var h = hoy();
     var f = fs.indexOf(h) >= 0 ? h : fechaPorDefecto(fs);
     var ms = deFecha(f);
     $("v-eyebrow").textContent = larga(f) + " · hora de Lima";
-    var nV = ms.filter(function (m) { return m.estado === "en_vivo"; }).length;
-    var nP = ms.filter(function (m) { return m.estado !== "en_vivo" && !esFinal(m); }).length;
-    var nF = ms.filter(esFinal).length;
-    $("v-resumen").innerHTML =
-      '<li><span class="dot" style="color: var(--live)"></span>' + nV + " en juego</li>" +
-      '<li><span class="dot" style="color: var(--empate)"></span>' + nP + " por empezar</li>" +
-      '<li><span class="dot" style="color: var(--ink)"></span>' + nF + " finalizados</li>";
-    if (!S.vivoSel || !ms.some(function (m) { return m.id === S.vivoSel; })) {
-      var primero = ms.filter(function (m) { return m.estado === "en_vivo"; })[0] || ms[0];
-      S.vivoSel = primero ? primero.id : null;
-    }
-    $("v-cards").innerHTML = ms.map(function (m) {
-      var estado, sL = "–", sV = "–", pend = true;
-      var r = sc(m.real);
-      if (m.estado === "en_vivo") { estado = '<span class="chip c-vivo"><span class="pulse" aria-hidden="true"></span>EN VIVO ' + esc(minuto(m)) + "</span>"; }
-      else if (esFinal(m)) { estado = '<span class="chip c-neutro">Final</span>'; }
-      else { estado = '<span class="chip c-neutro">' + ICON.reloj + "Por empezar · " + esc(m.hora) + "</span>"; }
-      if (r && (m.estado === "en_vivo" || m.estado === "final")) { sL = r[0]; sV = r[1]; pend = false; }
-      return '<button type="button" class="mcard" data-vivo="' + esc(m.id) + '" aria-pressed="' + (m.id === S.vivoSel) + '">' + estado +
-        '<span style="display: flex; flex-direction: column; gap: 6px; width: 100%">' +
-          '<span class="mrow"><span class="team">' + crest(m.escL) + "<span>" + esc(m.local) + '</span></span><span class="mscore' + (pend ? " pend" : "") + '">' + sL + "</span></span>" +
-          '<span class="mrow"><span class="team">' + crest(m.escV) + "<span>" + esc(m.visita) + '</span></span><span class="mscore' + (pend ? " pend" : "") + '">' + sV + "</span></span></span>" +
-        '<span class="mfoot"><span class="mrow" style="font-size: 13px; color: var(--muted)"><span>Pronóstico <strong style="color: var(--ink)">' + esc(m.marcador) + '</strong></span><span class="num">' + m.pl + " · " + m.pe + " · " + m.pv + " %</span></span>" + barra(m, true) + "</span></button>";
-    }).join("") || '<div class="empty card"><strong>Sin partidos</strong></div>';
+    var vivos = ms.filter(enVivo), prox = ms.filter(function (m) { return !enVivo(m) && !esFinal(m); }), fins = ms.filter(esFinal);
+    var o = resumen(ms);
+    var p = $("v-proy");
+    if (vivos.length || fins.length) {
+      p.hidden = false;
+      p.innerHTML = '<div class="t"><b>Si todo terminara así</b><span>' + o.gan + " ganados + " + o.proy + " en juego, de " + ms.length * regla.exacto + '</span></div><span class="n">+' + (o.gan + o.proy) + "</span>";
+    } else if (o.conEsp) {
+      p.hidden = false;
+      p.innerHTML = '<div class="t"><b>Puntos esperados</b><span>en ' + o.conEsp + " partidos, según el modelo</span></div><span class=\"n\">" + fmt1(o.esp) + "</span>";
+    } else { p.hidden = true; }
 
-    var sel = ms.filter(function (m) { return m.id === S.vivoSel; })[0];
-    if (sel) {
-      var r2 = sc(sel.real);
-      var marcadorVivo = r2 && (sel.estado === "en_vivo" || sel.estado === "final") ? r2[0] + " : " + r2[1] : "– : –";
-      var estadoTxt = sel.estado === "en_vivo" ? "En juego · " + minuto(sel) + " (minuto aproximado)" : esFinal(sel) ? "Finalizado" : "Empieza a las " + sel.hora + " · hora de Lima";
-      var st = sel.stats || {};
-      var filas = [
-        ["Marcador", sel.marcador, sel.estado === "por_empezar" || !r2 ? "—" : sel.real],
-        ["Prob. local · empate · visita", sel.pl + " · " + sel.pe + " · " + sel.pv + " %", "—"],
-        ["xG", fmtN(sel.xgL, 2) + " – " + fmtN(sel.xgV, 2), st.xg || "—"],
-        ["Posesión", "—", st.posesion || "—"],
-        ["Tiros (a puerta)", "—", st.tiros || "—"],
-        ["Córners", "—", st.corners || "—"],
-        ["Tarjetas", "—", st.tarjetas || "—"]
-      ];
-      $("v-detalle").innerHTML =
-        '<div class="detail-top"><h2 id="h-det" style="font-family: var(--font-body); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-muted)">Partido seleccionado</h2>' +
-        '<div class="vs"><span class="side"><span class="crestbig">' + crest(sel.escL, "") + "</span>" + esc(sel.local) + '</span><span class="score" style="color: ' + (marcadorVivo === "– : –" ? "var(--empate)" : "var(--brand-ink)") + '">' + marcadorVivo + '</span><span class="side r"><span class="crestbig">' + crest(sel.escV, "") + "</span>" + esc(sel.visita) + "</span></div>" +
-        '<p style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--brand-muted)">' + ICON.reloj + esc(estadoTxt) + "</p></div>" +
-        '<div role="table" aria-label="Pronóstico frente a datos en vivo"><div class="dt-row h" role="row"><span role="columnheader">Dato</span><span role="columnheader">Pronóstico</span><span role="columnheader">En vivo</span></div>' +
-        filas.map(function (f2) { return '<div class="dt-row" role="row"><span role="cell" style="color: var(--ink-2)">' + esc(f2[0]) + '</span><span role="cell" class="num" style="font-weight: 700' + (f2[1] === "—" ? "; color: var(--empate)" : "") + '">' + esc(f2[1]) + '</span><span role="cell" class="num" style="' + (f2[2] === "—" ? "color: var(--empate)" : "font-weight: 700") + '">' + esc(f2[2]) + "</span></div>"; }).join("") + "</div>" +
-        '<div style="padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px">' + (sel.ajuste ? '<span class="chip c-ajuste" style="align-self: flex-start">' + ICON.bandera + "Ajuste por bajas</span>" : "") +
-        '<p style="margin: 0; font-size: 14px; color: var(--ink-2)">' + esc(sel.nota) + '</p><p class="note">El marcador en vivo llega de The Odds API y se revisa cada 4 minutos mientras se juega; el minuto es aproximado. Posesión, tiros, córners y tarjetas necesitan un proveedor de estadísticas en vivo: [PROVEEDOR DE ESTADÍSTICAS EN VIVO].</p></div>';
-    }
+    $("v-juego-wrap").hidden = !vivos.length;
+    $("v-juego-meta").textContent = vivos.length + (vivos.length === 1 ? " partido" : " partidos");
+    $("v-juego").innerHTML = vivos.map(cardHTML).join("");
+    $("v-prox-wrap").hidden = !prox.length;
+    $("v-prox-meta").textContent = prox.length + (prox.length === 1 ? " partido" : " partidos");
+    $("v-prox").innerHTML = prox.map(cardHTML).join("");
 
-    var previas = fs.filter(function (x) { return x < f && deFecha(x).some(esFinal); });
-    var fp = previas[previas.length - 1];
-    $("v-fin-wrap").hidden = !fp;
-    if (fp) {
-      var fin = deFecha(fp).filter(esFinal);
-      var sg = 0, ex = 0;
-      fin.forEach(function (m) { var n = nivel(m.marcador, m.real); if (n !== "nada") sg++; if (n === "exacto") ex++; });
-      $("h-fin").textContent = "Finalizados · " + etiquetaFecha(fp).toLowerCase();
-      $("v-fin-meta").textContent = "Signo " + sg + "/" + fin.length + " · Marcador exacto " + ex + "/" + fin.length;
-      $("v-fin").innerHTML = fin.map(function (m) {
-        return '<div class="frow"><div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">' +
-          '<span class="team" style="font-size: 15px">' + crest(m.escL) + "<span>" + esc(m.local) + "</span></span>" +
-          '<span class="team" style="font-size: 15px">' + crest(m.escV) + "<span>" + esc(m.visita) + "</span></span></div>" +
-          '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px"><span class="big" style="font-size: 28px">' + esc(m.real) + '</span><span class="tiny">Final · pronóstico ' + esc(m.marcador) + "</span></div>" +
-          '<div style="display: flex; justify-content: flex-end">' + chipNivel(nivel(m.marcador, m.real)) + "</div></div>";
-      }).join("");
+    var lista = fins, etiqueta = "Finalizados hoy";
+    if (!fins.length) {
+      var previas = fs.filter(function (x) { return x < f && deFecha(x).some(esFinal); });
+      var fp = previas[previas.length - 1];
+      if (fp) { lista = deFecha(fp).filter(esFinal); etiqueta = "Finalizados · " + etiquetaFecha(fp).toLowerCase(); }
     }
+    $("v-fin-wrap").hidden = !lista.length;
+    $("h-fin").textContent = etiqueta;
+    var rf = resumen(lista);
+    $("v-fin-meta").textContent = lista.length + (lista.length === 1 ? " partido" : " partidos") + " · " + rf.gan + " puntos ganados";
+    $("v-fin").innerHTML = lista.map(finalHTML).join("");
+
+    var nav = $("nav-vivo");
+    nav.innerHTML = vivos.length ? '<span class="dot" style="color: #F87171" aria-hidden="true"></span>En vivo · ' + vivos.length : "En vivo";
   }
 
   /* ---------- Estadísticas ---------- */
@@ -738,9 +718,9 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
     c.className = "conn " + (S.conn === "ok" ? "ok" : S.conn === "off" ? "off" : "");
     t.textContent = S.conn === "ok" ? "Actualizado " + horaActualizado() : S.conn === "off" ? "Sin conexión a los datos" : "Cargando datos…";
     if (S.conn === "off" && !S.partidos.length) {
-      $("j-tabla").innerHTML = '<div class="empty"><strong>No se pudieron cargar los datos</strong><span>Recarga la página en unos segundos.</span></div>';
+      $("j-lista").innerHTML = '<div class="empty"><strong>No se pudieron cargar los datos</strong><span>Recarga la página en unos segundos.</span></div>';
     }
-    renderJornada(); renderRun(); renderVivo(); renderStats();
+    renderJornada(); renderAvisos(); renderVivo(); renderStats();
   }
 
   ["exacto", "dif", "ganador"].forEach(function (k) {
@@ -751,26 +731,14 @@ pre.log { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--b
       if (!isNaN(v) && v >= 0 && v <= 20) {
         regla[k] = v;
         try { localStorage.setItem("predictor-cl-regla", JSON.stringify(regla)); } catch (e) {}
-        renderJornada(); renderStats();
+        renderJornada(); renderVivo(); renderStats();
       }
     });
   });
   document.addEventListener("click", function (ev) {
-    var b = ev.target.closest("button");
-    if (!b) return;
-    if (b.hasAttribute("data-fecha")) { S.fechaSel = b.getAttribute("data-fecha"); renderJornada(); }
-    else if (b.hasAttribute("data-tarea")) { S.tarea = b.getAttribute("data-tarea"); renderRun(); }
-    else if (b.hasAttribute("data-fdebate")) { S.fechaDebate = b.getAttribute("data-fdebate"); renderRun(); }
-    else if (b.hasAttribute("data-vivo")) { S.vivoSel = b.getAttribute("data-vivo"); renderVivo(); }
-    else if (b.id === "copiar") {
-      var txt = $("cmd").textContent;
-      var hecho = function () { b.textContent = "Copiado"; setTimeout(function () { b.textContent = "Copiar"; }, 1600); };
-      try {
-        navigator.clipboard.writeText(txt).then(hecho, function () { seleccionar(); });
-      } catch (e) { seleccionar(); }
-    }
+    var b = ev.target.closest("button[data-fecha]");
+    if (b) { S.fechaSel = b.getAttribute("data-fecha"); renderJornada(); }
   });
-  function seleccionar() { var r = document.createRange(); r.selectNodeContents($("cmd")); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
   window.addEventListener("hashchange", mostrarVista);
   mostrarVista();
   render();
