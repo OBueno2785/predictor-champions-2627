@@ -1,12 +1,15 @@
-"""Cuotas y resultados de la Champions vía The Odds API.
+"""Cuotas y resultados de la Champions vía The Odds API (y TheSportsDB).
 
 - fetch_odds(): partidos próximos con cuotas 1X2 (implícitas sin margen).
-- fetch_results(): partidos ya jugados (endpoint /scores), se acumulan en
-  data/cl_results.json para entrenar el modelo y ajustar los pesos.
+- fetch_results(): partidos ya jugados (endpoint /scores, solo últimos 3 días),
+  se acumulan en data/cl_results.json para entrenar el modelo y ajustar los pesos.
+- fetch_results_fechas(): resultados de las últimas N jornadas vía TheSportsDB,
+  sin la ventana de 3 días; completa data/cl_results.json sin duplicar.
 - match_team(): empareja el nombre de la API con el del modelo (openfootball).
 """
 import json
 import os
+import time
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +30,15 @@ _ALIAS_API = {
     "paris saint germain": "Paris SG", "sporting lisbon": "Sporting CP",
     "psv eindhoven": "PSV", "bayern munich": "Bayern Munich",
     "atletico madrid": "Atlético Madrid", "atlético madrid": "Atlético Madrid",
+    # nombres de TheSportsDB -> los de The Odds API normalizados
+    "fenerbahçe": "Fenerbahce", "sabah baku": "Sabah", "slavia prague": "Slavia Praha",
+    "slovan bratislava": "ŠK Slovan Bratislava", "sporting cp": "Sporting CP",
 }
+
+TSDB = "https://www.thesportsdb.com/api/v1/json/123"
+TSDB_LIGA_CL = 4480
+TSDB_TEMPORADA = "2026-2027"
+INICIO_FASE_LIGA = "2026-09-01"  # en TheSportsDB cada ronda mezcla la previa de verano con la jornada
 
 
 def _key() -> str | None:
@@ -134,6 +145,55 @@ def fetch_results(data_dir: Path, days_from: int = 3) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     df["date"] = pd.to_datetime(df["date"])
     return df.sort_values("date").reset_index(drop=True)
+
+
+def _tsdb_ronda(rnd: int) -> list:
+    url = f"{TSDB}/eventsround.php"
+    for _ in range(3):
+        try:
+            r = requests.get(url, params={"id": TSDB_LIGA_CL, "r": rnd, "s": TSDB_TEMPORADA},
+                             headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+            if r.status_code == 429:  # límite por minuto del plan gratuito
+                time.sleep(30)
+                continue
+            r.raise_for_status()
+            return (r.json() or {}).get("events") or []
+        except Exception:
+            time.sleep(5)
+    return []
+
+
+def fetch_results_fechas(data_dir: Path, n_fechas: int = 3) -> int:
+    """Agrega a data/cl_results.json los resultados de las últimas `n_fechas`
+    jornadas de la fase de liga con partidos terminados (TheSportsDB). No tiene
+    la ventana de 3 días del /scores de The Odds API, así que una actualización
+    tardía no pierde resultados. Devuelve cuántos partidos nuevos agregó."""
+    store = data_dir / "cl_results.json"
+    rows = json.loads(store.read_text(encoding="utf-8")) if store.exists() else []
+    vistos = {(r["date"], _norm(r["home"]), _norm(r["away"])) for r in rows}
+    nuevos, jornadas = 0, 0
+    for rnd in range(8, 0, -1):
+        eventos = [e for e in _tsdb_ronda(rnd)
+                   if (e.get("dateEvent") or "") >= INICIO_FASE_LIGA
+                   and e.get("strStatus") == "FT"
+                   and e.get("intHomeScore") not in (None, "") and e.get("intAwayScore") not in (None, "")]
+        time.sleep(2.5)
+        if not eventos:
+            continue
+        jornadas += 1
+        for e in eventos:
+            clave = (e["dateEvent"], _norm(e["strHomeTeam"]), _norm(e["strAwayTeam"]))
+            if clave in vistos:
+                continue
+            vistos.add(clave)
+            rows.append({"id": f"tsdb-{e['idEvent']}", "date": e["dateEvent"],
+                         "home": e["strHomeTeam"], "away": e["strAwayTeam"],
+                         "home_score": int(e["intHomeScore"]), "away_score": int(e["intAwayScore"])})
+            nuevos += 1
+        if jornadas >= n_fechas:
+            break
+    store.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
+    return nuevos
 
 
 def results_as_training(data_dir: Path, model_teams=None) -> pd.DataFrame:

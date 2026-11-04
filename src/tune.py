@@ -25,6 +25,7 @@ GOALS_CAP = (0.85, 1.30)
 W_MARKET_DEFAULT = 0.75
 MIN_FOR_T = 20
 MIN_FOR_W = 15
+N_FECHAS_RESULTADOS = 3  # jornadas hacia atrás que se recuperan en cada actualización
 
 # fit del peso del MARCADOR-mercado (volumen de goles del marcador)
 SCORE_SHRINK_K = 20
@@ -120,6 +121,8 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     OUT.mkdir(exist_ok=True)
     of.download_all(DATA)
+    nuevos = odds.fetch_results_fechas(DATA, N_FECHAS_RESULTADOS)
+    print(f"Resultados de las últimas {N_FECHAS_RESULTADOS} fechas (TheSportsDB): {nuevos} nuevos")
     base = of.load_training(DATA)
     res = odds.results_as_training(DATA)
     df = base if res.empty else \
