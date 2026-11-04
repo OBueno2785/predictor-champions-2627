@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-04T16:33:24-05:00",
+ "actualizado": "2026-11-04T16:45:34-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -502,7 +502,7 @@
     0.128,
     0.403
    ],
-   "real": "1-1",
+   "real": "2-1",
    "stats": {},
    "visita": "Real Betis",
    "xgL": 2.2,
@@ -560,7 +560,7 @@
     0.13,
     0.262
    ],
-   "real": "2-1",
+   "real": "3-1",
    "stats": {},
    "visita": "Napoli",
    "xgL": 1.64,
@@ -618,7 +618,7 @@
     0.118,
     0.471
    ],
-   "real": "2-2",
+   "real": "2-3",
    "stats": {},
    "visita": "Manchester City",
    "xgL": 1.14,
@@ -705,7 +705,7 @@
     0.12,
     0.472
    ],
-   "real": "2-1",
+   "real": "3-1",
    "stats": {},
    "visita": "Sabah FK",
    "xgL": 2.49,
