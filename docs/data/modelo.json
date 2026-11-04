@@ -1,5 +1,5 @@
 {
- "T": 0.466,
+ "T": 0.492,
  "actualizado": "2026-11-04",
  "avisos": [
   {
@@ -7,28 +7,28 @@
    "tipo": "info"
   },
   {
-   "texto": "Pronósticos de hoy recalculados a las 11:12 con el modelo recalibrado (63 resultados). Ningún marcador cambió.",
+   "texto": "Modelo actualizado a las 17:15 con los 9 resultados del 4/11 (72 en total). Se unificaron Lille y Feyenoord, que el entrenamiento trataba como dos equipos cada uno.",
    "tipo": "info"
   },
   {
-   "texto": "Porto–Napoli: las bajas del Napoli no se pudieron verificar; se usa el pronóstico sin ajuste del debate.",
+   "texto": "Lens 1-9 Como verificado en dos fuentes (The Odds API y TheSportsDB).",
    "tipo": "info"
   }
  ],
  "equipos": 139,
- "goles": 1.095,
- "nScore": 22,
- "partidosAjuste": 5645,
+ "goles": 1.086,
+ "nScore": 27,
+ "partidosAjuste": 5735,
  "ultimaEjecucion": {
   "fecha": "2026-11-04",
+  "tarea": "Actualizar resultados y pesos",
   "lineas": [
-   "Resultados de las últimas 3 fechas: 18 nuevos (14/10 y 21/10)",
-   "CL 26-27 jugados: 63 | con modelo: 40",
-   "goles: real/predicho ×1,17 → ×1,095",
-   "temperatura ajustada: 0,466",
-   "w_market 0,75 · w_score 0,60 (n=22)"
-  ],
-  "tarea": "Actualizar resultados y pesos"
+   "Resultados nuevos: 9 (4/11) · total CL 26-27: 72 | con modelo: 53",
+   "goles: real/predicho ×1,14 → ×1,086",
+   "temperatura ajustada: 0,492",
+   "w_market 0,75 (walk-forward n=26: óptimo 0,70, sin diferencia)",
+   "w_score 0,60 (óptimo 0,00, limitado por el tope ±0,15; n=27)"
+  ]
  },
  "wMarket": 0.75,
  "wScore": 0.6

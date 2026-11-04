@@ -33,6 +33,8 @@ _ALIAS_API = {
     # nombres de TheSportsDB -> los de The Odds API normalizados
     "fenerbahçe": "Fenerbahce", "sabah baku": "Sabah", "slavia prague": "Slavia Praha",
     "slovan bratislava": "ŠK Slovan Bratislava", "sporting cp": "Sporting CP",
+    # mismo club que en el historial de openfootball (si no, se parte en dos)
+    "lille": "Lille OSC", "feyenoord": "Feyenoord Rotterdam",
 }
 
 TSDB = "https://www.thesportsdb.com/api/v1/json/123"
@@ -118,6 +120,7 @@ def fetch_results(data_dir: Path, days_from: int = 3) -> pd.DataFrame:
     prev = {}
     if store.exists():
         prev = {r["id"]: r for r in json.loads(store.read_text(encoding="utf-8"))}
+    vistos = {(r["date"], _norm(r["home"]), _norm(r["away"])): i for i, r in prev.items()}
     key = _key()
     if key:
         try:
@@ -131,6 +134,10 @@ def fetch_results(data_dir: Path, days_from: int = 3) -> pd.DataFrame:
                 hs, as_ = sc.get(e["home_team"]), sc.get(e["away_team"])
                 if hs is None or as_ is None:
                     continue
+                clave = (e["commence_time"][:10], _norm(e["home_team"]), _norm(e["away_team"]))
+                if vistos.get(clave, e["id"]) != e["id"]:
+                    continue  # ya está (p. ej. desde TheSportsDB) con otro id
+                vistos[clave] = e["id"]
                 prev[e["id"]] = {
                     "id": e["id"], "date": e["commence_time"][:10],
                     "home": e["home_team"], "away": e["away_team"],
