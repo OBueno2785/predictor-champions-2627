@@ -23,6 +23,9 @@ import json
 from pathlib import Path
 
 import numpy as np
+from scipy.optimize import brentq
+
+from src.model.dixon_coles import matrix_from_rates
 
 _CFG = Path(__file__).resolve().parent.parent / "outputs" / "blend_config.json"
 DEFAULT_W_MARKET = 0.65
@@ -105,6 +108,30 @@ def rescale_matrix(P, target_1x2) -> np.ndarray:
         if s > 0:
             out += region * (target / s)
     return out / out.sum()
+
+
+def coherent_matrix(lam, mu, rho, target_1x2) -> np.ndarray:
+    """Matriz de marcadores coherente con el 1X2 final.
+
+    rescale_matrix sola impone el 1X2 sobre una matriz cuyos ritmos pueden
+    implicar otro (PSG-Barça: ritmos 68% local, final 46%): las regiones suman
+    bien pero su forma interna es la de otro partido (salía 3-1 con 1-2/2-2/1-1
+    como casillas más probables). Aquí se conserva el total de goles (lam+mu) y
+    se busca la diferencia de ritmos cuya P(local)-P(visita) iguala la del
+    objetivo; rescale_matrix ajusta después el empate."""
+    tot = float(lam + mu)
+    objetivo = float(target_1x2[0] - target_1x2[2])
+
+    def brecha(d):
+        P = matrix_from_rates((tot + d) / 2, (tot - d) / 2, rho)
+        return np.tril(P, -1).sum() - np.triu(P, 1).sum() - objetivo
+
+    lim = 0.98 * tot
+    try:
+        d = brentq(brecha, -lim, lim)
+    except ValueError:  # objetivo inalcanzable con este total: diferencia original
+        d = float(lam - mu)
+    return rescale_matrix(matrix_from_rates((tot + d) / 2, (tot - d) / 2, rho), target_1x2)
 
 
 def score_summary(P, n_top: int = 3) -> dict:

@@ -111,8 +111,7 @@ def main():
         mu_sc = (1 - w_score) * mu_md + w_score * mu_m
     else:
         lam_sc, mu_sc = lam_md, mu_md
-    P_sc = dixon_coles.matrix_from_rates(lam_sc, mu_sc, model.rho)
-    resumen = blend.score_summary(blend.rescale_matrix(P_sc, [bh, bd, ba]), 3)
+    resumen = blend.score_summary(blend.coherent_matrix(lam_sc, mu_sc, model.rho, [bh, bd, ba]), 3)
 
     v = resultado.veredicto
     print(f"  Veredicto: Δ home={resultado.delta_home:+.3f} away={resultado.delta_away:+.3f}"

@@ -29,8 +29,14 @@ _MESES = {m: i for i, m in enumerate(
 _DIA = re.compile(r"^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+(\w{3})\s+(\d{1,2})(?:\s+(\d{4}))?")
 # Liga doméstica: <local>  <hs>-<as> [ (ht) ]  <visita>
 _PARTIDO = re.compile(
-    r"^(?:\d{1,2}[:.]\d{2}\s+)?(?P<home>[^\d].*?)\s+(?P<hs>\d{1,2})-(?P<as>\d{1,2})"
-    r"(?:\s*\(\d+-\d+\))?\s+(?P<away>[^\d(].*?)\s*$")
+    r"^(?:\d{1,2}[:.]\d{2}\s+)?(?P<home>(?:\d\.\s+)?[^\d].*?)\s+(?P<hs>\d{1,2})-(?P<as>\d{1,2})"
+    r"(?:\s*\(\d+-\d+\))?\s+(?P<away>(?:\d\.\s+)?[^\d(].*?)\s*$")
+# Liga doméstica, formato nuevo (2024-25, 2026-27): <local>  v  <visita>  <hs>-<as> [ (ht) ]
+_PARTIDO_V = re.compile(
+    r"^(?:\d{1,2}[:.]\d{2}\s+)?(?P<home>.+?)\s+v\s+(?P<away>.+?)\s+"
+    r"(?P<hs>\d{1,2})-(?P<as>\d{1,2})(?:\s*\(\d+-\d+\))?\s*$")
+# líneas de goleadores: "(Kane 23', Musiala 45+2')"
+_GOLEADOR = re.compile(r"\d'")
 # Champions: <local> (PAÍS)  v  <visita> (PAÍS)  <hs>-<as> [ (ht) ]
 _PARTIDO_CL = re.compile(
     r"^(?:\d{1,2}:\d{2}\s+)?(?P<home>.+?)\s+\([A-Z]{3}\)\s+v\s+"
@@ -49,6 +55,18 @@ _ALIAS = {
     "Atlético de Madrid": "Atlético Madrid", "Atletico de Madrid": "Atlético Madrid",
     "Sporting Clube de Portugal": "Sporting CP", "Sport Lisboa e Benfica": "Benfica",
     "Paris Saint-Germain": "Paris SG", "Paris Saint Germain": "Paris SG",
+    # variantes entre temporadas/formatos de openfootball (la 2025-26 usa nombres
+    # cortos y el resto largos): sin unificar, un club se ratea como dos equipos
+    "Borussia M'gladbach": "Borussia Mönchengladbach",
+    "Espanyol de Barcelona": "Espanyol", "Como 1907": "Como",
+    "Parma Calcio 1913": "Parma", "St Pauli 1910": "St Pauli",
+    "Heidenheim 1846": "Heidenheim",
+    "Club Atlético de Madrid": "Atlético Madrid", "Real Betis Balompié": "Real Betis",
+    "Real Sociedad de Fútbol": "Real Sociedad", "Rayo Vallecano de Madrid": "Rayo Vallecano",
+    "Celta de Vigo": "Celta", "Bayer 04 Leverkusen": "Bayer Leverkusen",
+    "Bologna FC 1909": "Bologna", "SS Lazio": "Lazio", "ACF Fiorentina": "Fiorentina",
+    "Genoa CFC": "Genoa", "Red Bull Salzburg": "Salzburg", "LASK Linz": "LASK",
+    "Blau Weiß Linz": "Blau-Weiß Linz",
 }
 
 
@@ -106,18 +124,22 @@ def _parse_file(text: str, comp: str, season: str) -> list:
             if mes:
                 cur_date = pd.Timestamp(year=cur_year, month=mes, day=dia)
             continue
+        if "[" in s:  # [awarded], [annulled]...: resultado de mesa, no comparable
+            continue
         if comp == "CL":
             # saltar eliminatorias (prórroga/penales/agregado): forma no comparable
             if "a.e.t" in s or "pen." in s or " agg" in s:
                 continue
             pm = _PARTIDO_CL.match(s)
         else:
-            pm = _PARTIDO.match(s)
+            pm = _PARTIDO_V.match(s) or _PARTIDO.match(s)
         if pm and cur_date is not None:
             home = pm.group("home").strip()
             away = pm.group("away").strip()
             # descartar líneas de goleadores u otras sin nombres plausibles
-            if len(home) < 2 or len(away) < 2 or "'" in home or "'" in away:
+            # (no basta con "'": hay clubes como "Borussia M'gladbach")
+            if len(home) < 2 or len(away) < 2 or home.startswith("(") \
+                    or _GOLEADOR.search(home) or _GOLEADOR.search(away):
                 continue
             home, away = normalize_team(home), normalize_team(away)
             filas.append({

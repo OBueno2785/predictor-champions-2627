@@ -105,20 +105,19 @@ def predict_match(model, home, away, market, cal, neutral=False, market_total=No
             fuente = "modelo+mercado"
             # marcador: volumen de goles mezclado modelo+mercado al peso FITEADO w_score
             lam_m, mu_m = _market_rates(mkt_1x2, market_total, model.rho)
-            P_sc = dixon_coles.matrix_from_rates((1 - w_score) * lam_md + w_score * lam_m,
-                                                 (1 - w_score) * mu_md + w_score * mu_m, model.rho)
+            lam_sc = (1 - w_score) * lam_md + w_score * lam_m
+            mu_sc = (1 - w_score) * mu_md + w_score * mu_m
         else:
             fin = mf
             fuente = "modelo"
-            P_sc = dixon_coles.matrix_from_rates(lam_md, mu_md, model.rho)
+            lam_sc, mu_sc = lam_md, mu_md
     elif market is not None:
         fin = np.array([market["p_home"], market["p_draw"], market["p_away"]])
-        lam, mu = _market_rates(fin, market_total, model.rho)
-        P_sc = dixon_coles.matrix_from_rates(lam, mu, model.rho)
+        lam_sc, mu_sc = _market_rates(fin, market_total, model.rho)
         fuente = "mercado"
     else:
         return None
-    s = blend.score_summary(blend.rescale_matrix(P_sc, fin), 3)
+    s = blend.score_summary(blend.coherent_matrix(lam_sc, mu_sc, model.rho, fin), 3)
     return {"home": home, "away": away, "p_home": float(fin[0]), "p_draw": float(fin[1]),
             "p_away": float(fin[2]), "fuente": fuente, **s}
 
