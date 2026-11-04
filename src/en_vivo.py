@@ -8,7 +8,10 @@ Claude los publique en la base de la app. El minuto lo estima la propia página
 a partir de la hora de inicio. Guarda el último estado en
 outputs/en_vivo/<fecha>.json, así que puede reiniciarse sin repetir eventos.
 
-Uso:  python -m src.en_vivo [today|YYYY-MM-DD] [--cada 240]
+Con --web, además aplica cada cambio a docs/data/partidos.json y lo publica
+con un commit (la web de GitHub Pages lo muestra en uno o dos minutos).
+
+Uso:  python -m src.en_vivo [today|YYYY-MM-DD] [--cada 240] [--web]
 """
 import json
 import re
@@ -21,6 +24,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+from src import web_datos
 from src.ingest import odds
 
 LIMA = ZoneInfo("America/Lima")
@@ -73,6 +77,7 @@ def main():
     arg = args[0] if args else "today"
     fecha = datetime.now(LIMA).strftime("%Y-%m-%d") if arg == "today" else arg
     cada = int(sys.argv[sys.argv.index("--cada") + 1]) if "--cada" in sys.argv else 240
+    web = "--web" in sys.argv
     SALIDA.mkdir(parents=True, exist_ok=True)
     ruta = SALIDA / f"{fecha}.json"
     estado = json.loads(ruta.read_text(encoding="utf-8")) if ruta.exists() else {}
@@ -121,6 +126,13 @@ def main():
             ruta.write_text(json.dumps(estado, ensure_ascii=False, indent=1), encoding="utf-8")
             print(json.dumps({"hora": ahora.strftime("%H:%M"), "cambios": cambios, "creditos": creditos},
                              ensure_ascii=False))
+            if web:
+                try:
+                    web_datos.aplicar_partidos(cambios)
+                    if not web_datos.publicar(f"datos: marcadores en vivo {fecha} {ahora:%H:%M}"):
+                        print(json.dumps({"error": "no se pudo publicar en la web (git)"}))
+                except Exception as ex:
+                    print(json.dumps({"error": f"web: {str(ex)[:140]}"}, ensure_ascii=False))
 
         terminados = [d for d in esperados if estado.get(d, {}).get("estado") == "final"]
         if esperados and len(terminados) == len(esperados):
