@@ -1,0 +1,35 @@
+{
+ "T": 0.466,
+ "actualizado": "2026-11-04",
+ "avisos": [
+  {
+   "texto": "Cada actualización recupera los resultados de las últimas 3 fechas, sin la ventana de 3 días de la API de cuotas.",
+   "tipo": "info"
+  },
+  {
+   "texto": "Pronósticos de hoy recalculados a las 11:12 con el modelo recalibrado (63 resultados). Ningún marcador cambió.",
+   "tipo": "info"
+  },
+  {
+   "texto": "Porto–Napoli: las bajas del Napoli no se pudieron verificar; se usa el pronóstico sin ajuste del debate.",
+   "tipo": "info"
+  }
+ ],
+ "equipos": 139,
+ "goles": 1.095,
+ "nScore": 22,
+ "partidosAjuste": 5645,
+ "ultimaEjecucion": {
+  "fecha": "2026-11-04",
+  "lineas": [
+   "Resultados de las últimas 3 fechas: 18 nuevos (14/10 y 21/10)",
+   "CL 26-27 jugados: 63 | con modelo: 40",
+   "goles: real/predicho ×1,17 → ×1,095",
+   "temperatura ajustada: 0,466",
+   "w_market 0,75 · w_score 0,60 (n=22)"
+  ],
+  "tarea": "Actualizar resultados y pesos"
+ },
+ "wMarket": 0.75,
+ "wScore": 0.6
+}

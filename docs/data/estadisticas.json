@@ -1,0 +1,94 @@
+{
+ "datosMeta": "5.726 partidos leídos · 5.645 usados en el ajuste",
+ "historico": [
+  {
+   "exacto": 2,
+   "fecha": "8/9",
+   "jor": "J1",
+   "n": 6,
+   "signo": 5
+  }
+ ],
+ "ligas": [
+  {
+   "n": 1209,
+   "nombre": "España · LaLiga"
+  },
+  {
+   "n": 1190,
+   "nombre": "Inglaterra · Premier League"
+  },
+  {
+   "n": 1190,
+   "nombre": "Italia · Serie A"
+  },
+  {
+   "n": 953,
+   "nombre": "Alemania · Bundesliga"
+  },
+  {
+   "n": 626,
+   "nombre": "Austria · Bundesliga"
+  },
+  {
+   "n": 495,
+   "nombre": "Champions 2023-2026"
+  },
+  {
+   "n": 63,
+   "nombre": "Champions 2026-27"
+  }
+ ],
+ "ligasNota": "Fuera del modelo: Francia, Portugal, Países Bajos, Bélgica, Grecia, Turquía y otras ligas. Sus clubes se ratean solo por sus partidos de Champions o se pronostican con el mercado.",
+ "temps": [
+  {
+   "fecha": "9/9",
+   "v": 1
+  },
+  {
+   "fecha": "14/10",
+   "v": 1
+  },
+  {
+   "fecha": "20/10",
+   "v": 0.487
+  },
+  {
+   "fecha": "3/11",
+   "v": 0.404
+  },
+  {
+   "fecha": "4/11",
+   "v": 0.466
+  }
+ ],
+ "validacion": [
+  {
+   "antes": "0,936",
+   "despues": "0,926",
+   "metrica": "Log-loss del 1X2",
+   "sentido": "menor es mejor"
+  },
+  {
+   "antes": "0,208",
+   "despues": "0,204",
+   "metrica": "RPS",
+   "sentido": "menor es mejor"
+  },
+  {
+   "antes": "−3,311",
+   "despues": "−3,286",
+   "metrica": "Log-verosimilitud del marcador",
+   "sentido": "mayor es mejor"
+  },
+  {
+   "antes": "59,0%",
+   "despues": "62,9%",
+   "metrica": "Signo acertado",
+   "sentido": "mayor es mejor"
+  }
+ ],
+ "validacionNota": "256 partidos de Champions entre 2024-25 y 2026-27. Cada semana se reentrena solo con los partidos anteriores. Modelo puro, sin mercado ni debate. «Antes» es el lector de datos que perdía las temporadas 2024-25 y 2026-27.",
+ "validacionSigno": "62,9%",
+ "validacionTexto": "256 partidos de Champions 2024-2026, entrenando solo con partidos anteriores"
+}
