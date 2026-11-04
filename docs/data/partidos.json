@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-04T15:36:22-05:00",
+ "actualizado": "2026-11-04T15:44:33-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -618,7 +618,7 @@
     0.118,
     0.471
    ],
-   "real": "0-0",
+   "real": "0-1",
    "stats": {},
    "visita": "Manchester City",
    "xgL": 1.14,
@@ -647,7 +647,7 @@
     0.127,
     0.259
    ],
-   "real": "0-1",
+   "real": "0-3",
    "stats": {},
    "visita": "Como",
    "xgL": 1.19,
@@ -676,7 +676,7 @@
     0.076,
     0.596
    ],
-   "real": "0-1",
+   "real": "0-2",
    "stats": {},
    "visita": "Arsenal",
    "xgL": 0.48,
