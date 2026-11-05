@@ -1,33 +1,35 @@
 {
- "T": 0.492,
- "actualizado": "2026-11-04",
+ "T": 0.626,
+ "actualizado": "2026-11-05",
  "avisos": [
+  {
+   "texto": "El modelo ahora se entrena con 16 ligas domésticas y las 3 copas europeas (17.807 partidos, 432 equipos): ya cubre los 72 partidos jugados de esta Champions (antes 53).",
+   "tipo": "info"
+  },
+  {
+   "texto": "Validación walk-forward sobre los 72 partidos jugados: con las ligas nuevas el pronóstico modelo+mercado queda igual (log-loss 0,793 frente a 0,793); la mejora es de cobertura, no de precisión.",
+   "tipo": "info"
+  },
   {
    "texto": "Cada actualización recupera los resultados de las últimas 3 fechas, sin la ventana de 3 días de la API de cuotas.",
    "tipo": "info"
-  },
-  {
-   "texto": "Modelo actualizado a las 17:15 con los 9 resultados del 4/11 (72 en total). Se unificaron Lille y Feyenoord, que el entrenamiento trataba como dos equipos cada uno.",
-   "tipo": "info"
-  },
-  {
-   "texto": "Lens 1-9 Como verificado en dos fuentes (The Odds API y TheSportsDB).",
-   "tipo": "info"
   }
  ],
- "equipos": 139,
- "goles": 1.086,
- "nScore": 27,
- "partidosAjuste": 5735,
+ "base": "16 ligas domésticas y las 3 copas europeas, desde 2023-24",
+ "equipos": 432,
+ "goles": 1.152,
+ "nScore": 36,
+ "partidosAjuste": 17807,
  "ultimaEjecucion": {
-  "fecha": "2026-11-04",
-  "tarea": "Actualizar resultados y pesos",
+  "fecha": "2026-11-05",
+  "tarea": "Integrar ligas faltantes y recalibrar",
   "lineas": [
-   "Resultados nuevos: 9 (4/11) · total CL 26-27: 72 | con modelo: 53",
-   "goles: real/predicho ×1,14 → ×1,086",
-   "temperatura ajustada: 0,492",
-   "w_market 0,75 (walk-forward n=26: óptimo 0,70, sin diferencia)",
-   "w_score 0,60 (óptimo 0,00, limitado por el tope ±0,15; n=27)"
+   "Base: openfootball + TheSportsDB (temporadas incompletas) · 17.807 partidos · 432 equipos",
+   "CL 26-27: 72 jugados | con modelo: 72 (antes 53)",
+   "goles: real/predicho ×1,21 → ×1,152",
+   "temperatura ajustada: 0,626",
+   "w_market 0,75 (por defecto)",
+   "w_score 0,60 (óptimo 0,04, limitado por el tope ±0,15; n=36)"
   ]
  },
  "wMarket": 0.75,

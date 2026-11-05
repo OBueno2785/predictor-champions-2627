@@ -1,5 +1,5 @@
 {
- "datosMeta": "5.726 partidos leídos · 5.645 usados en el ajuste",
+ "datosMeta": "17.807 partidos leídos · 17.272 usados en el ajuste",
  "historico": [
   {
    "exacto": 2,
@@ -11,35 +11,91 @@
  ],
  "ligas": [
   {
-   "n": 1209,
+   "n": 1249,
    "nombre": "España · LaLiga"
   },
   {
-   "n": 1190,
-   "nombre": "Inglaterra · Premier League"
-  },
-  {
-   "n": 1190,
+   "n": 1240,
    "nombre": "Italia · Serie A"
   },
   {
-   "n": 953,
+   "n": 1230,
+   "nombre": "Inglaterra · Premier League"
+  },
+  {
+   "n": 1113,
+   "nombre": "Turquía · Süper Lig"
+  },
+  {
+   "n": 1027,
+   "nombre": "Bélgica · Pro League"
+  },
+  {
+   "n": 1016,
+   "nombre": "Países Bajos · Eredivisie"
+  },
+  {
+   "n": 1008,
+   "nombre": "Portugal · Primeira Liga"
+  },
+  {
+   "n": 998,
+   "nombre": "Francia · Ligue 1"
+  },
+  {
+   "n": 989,
    "nombre": "Alemania · Bundesliga"
   },
   {
-   "n": 626,
+   "n": 925,
+   "nombre": "Chequia · Primera Liga"
+  },
+  {
+   "n": 919,
+   "nombre": "Noruega · Eliteserien"
+  },
+  {
+   "n": 799,
+   "nombre": "Ucrania · Premier League"
+  },
+  {
+   "n": 773,
+   "nombre": "Grecia · Super League"
+  },
+  {
+   "n": 656,
+   "nombre": "Eslovaquia · Superliga"
+  },
+  {
+   "n": 650,
    "nombre": "Austria · Bundesliga"
+  },
+  {
+   "n": 616,
+   "nombre": "Azerbaiyán · Premier League"
+  },
+  {
+   "n": 1031,
+   "nombre": "Conference League y previas"
+  },
+  {
+   "n": 762,
+   "nombre": "Europa League y previas"
   },
   {
    "n": 495,
    "nombre": "Champions 2023-2026"
   },
   {
-   "n": 63,
+   "n": 239,
+   "nombre": "Champions · previas"
+  },
+  {
+   "n": 72,
    "nombre": "Champions 2026-27"
   }
  ],
- "ligasNota": "Fuera del modelo: Francia, Portugal, Países Bajos, Bélgica, Grecia, Turquía y otras ligas. Sus clubes se ratean solo por sus partidos de Champions o se pronostican con el mercado.",
+ "ligasNota": "Temporadas 2023-24 a 2026-27 de openfootball; las incompletas (la actual y varias 2025-26) se completan con TheSportsDB. Las copas europeas y sus previas conectan el nivel entre ligas. Quedan fuera los equipos con menos de 8 partidos.",
  "temps": [
   {
    "fecha": "9/9",
@@ -60,6 +116,10 @@
   {
    "fecha": "4/11",
    "v": 0.466
+  },
+  {
+   "fecha": "5/11",
+   "v": 0.626
   }
  ],
  "validacion": [

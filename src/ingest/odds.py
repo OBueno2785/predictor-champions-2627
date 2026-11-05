@@ -31,8 +31,8 @@ _ALIAS_API = {
     "psv eindhoven": "PSV", "bayern munich": "Bayern Munich",
     "atletico madrid": "Atlético Madrid", "atlético madrid": "Atlético Madrid",
     # nombres de TheSportsDB -> los de The Odds API normalizados
-    "fenerbahçe": "Fenerbahce", "sabah baku": "Sabah", "slavia prague": "Slavia Praha",
-    "slovan bratislava": "ŠK Slovan Bratislava", "sporting cp": "Sporting CP",
+    "fenerbahçe": "Fenerbahçe", "fenerbahce": "Fenerbahçe", "sabah baku": "Sabah",
+    "slavia prague": "Slavia Praha", "slovan bratislava": "Slovan Bratislava", "sporting cp": "Sporting CP",
     # mismo club que en el historial de openfootball (si no, se parte en dos)
     "lille": "Lille OSC", "feyenoord": "Feyenoord Rotterdam",
 }

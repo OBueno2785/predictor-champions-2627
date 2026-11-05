@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from src.calibration import metrics, temperature
-from src.ingest import odds, openfootball as of
+from src.ingest import odds, openfootball as of, tsdb
 from src.model import dixon_coles
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -121,6 +121,10 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     OUT.mkdir(exist_ok=True)
     of.download_all(DATA)
+    reporte = tsdb.actualizar(DATA, verbose=False)
+    if reporte:
+        print(f"TheSportsDB: {len(reporte)} nombres emparejados sin coincidencia exacta "
+              f"(ver python -m src.ingest.tsdb)")
     nuevos = odds.fetch_results_fechas(DATA, N_FECHAS_RESULTADOS)
     print(f"Resultados de las últimas {N_FECHAS_RESULTADOS} fechas (TheSportsDB): {nuevos} nuevos")
     base = of.load_training(DATA)

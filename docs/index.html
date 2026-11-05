@@ -646,7 +646,7 @@ h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 2
       ["Marcador exacto", T.exacto + "/" + T.fin, T.fin ? Math.round(100 * T.exacto / T.fin) + "%" : "", "Mismo marcador que el real"],
       ["Puntos", T.pts + "/" + T.finPts * regla.exacto, T.finPts ? fmtN(T.pts / T.finPts, 2) + " por partido" : "", "Regla " + regla.exacto + "/" + regla.dif + "/" + regla.ganador + " del estimador"],
       ["Validación histórica", est.validacionSigno || "—", "signo", est.validacionTexto || ""],
-      ["Partidos en el ajuste", md.partidosAjuste ? Number(md.partidosAjuste).toLocaleString("es-ES") : "—", md.equipos ? md.equipos + " equipos" : "", "5 ligas domésticas y Champions, desde 2023-24"]
+      ["Partidos en el ajuste", md.partidosAjuste ? Number(md.partidosAjuste).toLocaleString("es-ES") : "—", md.equipos ? md.equipos + " equipos" : "", md.base || "16 ligas domésticas y las 3 copas europeas, desde 2023-24"]
     ].map(function (k) {
       return '<div class="card kpi"><span class="lbl">' + esc(k[0]) + '</span><span class="v"><b>' + esc(k[1]) + "</b><span>" + esc(k[2]) + '</span></span><span class="note">' + esc(k[3]) + "</span></div>";
     }).join("");
