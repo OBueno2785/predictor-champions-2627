@@ -62,6 +62,18 @@ def _top_scores(P, n=3) -> str:
     return "; ".join(f"{i}-{j} ({p:.1%})" for p, i, j in flat[:n])
 
 
+def _niveles(P, marcador: str) -> list:
+    """[P(exacto), P(solo ganador + diferencia), P(solo ganador)] del marcador
+    pronosticado bajo la matriz P: lo que usa el estimador de puntos de la app."""
+    i0, j0 = (int(x) for x in marcador.split("-"))
+    idx = np.arange(P.shape[0])
+    dif = idx[:, None] - idx[None, :]
+    signo = np.sign(dif) == np.sign(i0 - j0)
+    exacto = float(P[i0, j0])
+    misma_dif = float(P[dif == i0 - j0].sum())
+    return [round(exacto, 4), round(misma_dif - exacto, 4), round(float(P[signo].sum()) - misma_dif, 4)]
+
+
 def _degradado(motivo: str):
     return debate.ResultadoDebate(
         veredicto=VeredictoJuez(delta_log_xg_home=0, delta_log_xg_away=0, confianza="baja",
@@ -163,7 +175,8 @@ def main():
                 lam_sc, mu_sc = lam_m * np.exp(dh), mu_m * np.exp(da)
         else:
             lam_sc, mu_sc = lam2 * g, mu2 * g
-        resumen = blend.score_summary(blend.coherent_matrix(lam_sc, mu_sc, model.rho, [bh, bd, ba]), 3)
+        P_sc = blend.coherent_matrix(lam_sc, mu_sc, model.rho, [bh, bd, ba])
+        resumen = blend.score_summary(P_sc, 3)
 
         v = resultado.veredicto
         tag = " ⚑override" if override_ap else (f" ⚠{degraded}" if degraded else "")
@@ -185,6 +198,7 @@ def main():
             "hora": _hora(e).strftime("%H:%M"), "home": home_lbl, "away": away_lbl, "fuente": fuente,
             "p_home": bh, "p_draw": bd, "p_away": ba,
             "score": resumen["score_pred"], "xg_home": resumen["xg_home"], "xg_away": resumen["xg_away"],
+            "q": _niveles(P_sc, resumen["score_pred"]),
             "delta_home": dh, "delta_away": da, "bajas": bajas, "override": override_ap,
             "factores": v.factores, "resumen": v.resumen, "degraded": degraded,
         })

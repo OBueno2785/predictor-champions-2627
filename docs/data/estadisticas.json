@@ -1,5 +1,5 @@
 {
- "datosMeta": "17.807 partidos leídos · 17.272 usados en el ajuste",
+ "datosMeta": "17.948 partidos leídos · 17.412 usados en el ajuste",
  "historico": [
   {
    "exacto": 2,
@@ -11,67 +11,67 @@
  ],
  "ligas": [
   {
-   "n": 1249,
+   "n": 1259,
    "nombre": "España · LaLiga"
   },
   {
-   "n": 1240,
+   "n": 1250,
    "nombre": "Italia · Serie A"
   },
   {
-   "n": 1230,
+   "n": 1240,
    "nombre": "Inglaterra · Premier League"
   },
   {
-   "n": 1113,
+   "n": 1122,
    "nombre": "Turquía · Süper Lig"
   },
   {
-   "n": 1027,
+   "n": 1036,
    "nombre": "Bélgica · Pro League"
   },
   {
-   "n": 1016,
+   "n": 1025,
    "nombre": "Países Bajos · Eredivisie"
   },
   {
-   "n": 1008,
+   "n": 1016,
    "nombre": "Portugal · Primeira Liga"
   },
   {
-   "n": 998,
+   "n": 1007,
    "nombre": "Francia · Ligue 1"
   },
   {
-   "n": 989,
+   "n": 998,
    "nombre": "Alemania · Bundesliga"
   },
   {
-   "n": 925,
+   "n": 933,
    "nombre": "Chequia · Primera Liga"
   },
   {
-   "n": 919,
+   "n": 927,
    "nombre": "Noruega · Eliteserien"
   },
   {
-   "n": 799,
+   "n": 807,
    "nombre": "Ucrania · Premier League"
   },
   {
-   "n": 773,
+   "n": 780,
    "nombre": "Grecia · Super League"
   },
   {
-   "n": 656,
+   "n": 662,
    "nombre": "Eslovaquia · Superliga"
   },
   {
-   "n": 650,
+   "n": 656,
    "nombre": "Austria · Bundesliga"
   },
   {
-   "n": 616,
+   "n": 622,
    "nombre": "Azerbaiyán · Premier League"
   },
   {
@@ -79,7 +79,7 @@
    "nombre": "Conference League y previas"
   },
   {
-   "n": 762,
+   "n": 771,
    "nombre": "Europa League y previas"
   },
   {
@@ -120,6 +120,10 @@
   {
    "fecha": "5/11",
    "v": 0.626
+  },
+  {
+   "fecha": "17/11",
+   "v": 0.624
   }
  ],
  "validacion": [

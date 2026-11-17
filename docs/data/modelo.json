@@ -1,13 +1,13 @@
 {
- "T": 0.626,
- "actualizado": "2026-11-05",
+ "T": 0.624,
+ "actualizado": "2026-11-17",
  "avisos": [
   {
-   "texto": "El modelo ahora se entrena con 16 ligas domésticas y las 3 copas europeas (17.807 partidos, 432 equipos): ya cubre los 72 partidos jugados de esta Champions (antes 53).",
-   "tipo": "info"
+   "texto": "Jornada 5 (24 y 25/11): pronósticos de modelo + mercado con las cuotas del 17/11. Falta el ajuste del debate (bajas confirmadas); se agrega más cerca de cada fecha.",
+   "tipo": "warn"
   },
   {
-   "texto": "Validación walk-forward sobre los 72 partidos jugados: con las ligas nuevas el pronóstico modelo+mercado queda igual (log-loss 0,793 frente a 0,793); la mejora es de cobertura, no de precisión.",
+   "texto": "El modelo se entrena con 16 ligas domésticas y las 3 copas europeas: cubre a los 36 equipos de esta Champions.",
    "tipo": "info"
   },
   {
@@ -17,19 +17,19 @@
  ],
  "base": "16 ligas domésticas y las 3 copas europeas, desde 2023-24",
  "equipos": 432,
- "goles": 1.152,
+ "goles": 1.15,
  "nScore": 36,
- "partidosAjuste": 17807,
+ "partidosAjuste": 17948,
  "ultimaEjecucion": {
-  "fecha": "2026-11-05",
-  "tarea": "Integrar ligas faltantes y recalibrar",
+  "fecha": "2026-11-17",
+  "tarea": "Actualizar datos y pronosticar la jornada 5",
   "lineas": [
-   "Base: openfootball + TheSportsDB (temporadas incompletas) · 17.807 partidos · 432 equipos",
-   "CL 26-27: 72 jugados | con modelo: 72 (antes 53)",
-   "goles: real/predicho ×1,21 → ×1,152",
-   "temperatura ajustada: 0,626",
-   "w_market 0,75 (por defecto)",
-   "w_score 0,60 (óptimo 0,04, limitado por el tope ±0,15; n=36)"
+   "Base: 17.948 partidos (ligas hasta el 8/11) · 432 equipos",
+   "CL 26-27: 72 jugados | con modelo: 72",
+   "goles: real/predicho ×1,21 → ×1,150",
+   "temperatura ajustada: 0,624",
+   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,02, tope ±0,15; n=36)",
+   "Jornada 5: 18 partidos con cuotas de 19-20 casas; debate no disponible (sesión de Claude Code expirada)"
   ]
  },
  "wMarket": 0.75,

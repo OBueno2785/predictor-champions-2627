@@ -5,6 +5,8 @@ recarga cada minuto. Este módulo aplica cambios a partidos.json (por `id`) y
 los publica con un commit + push solo de docs/data.
 
 Uso:  python -m src.web_datos aplicar <cambios.json> "<mensaje del commit>"
+      python -m src.web_datos jornada <fecha> "<Jornada N · día k>" <JN> <notas.json> <salida.json>
+        (arma los partidos de una fecha desde outputs/jornadas/<fecha>.json; luego `aplicar`)
 """
 import json
 import subprocess
@@ -32,6 +34,40 @@ def aplicar_partidos(cambios: list) -> int:
     return len(cambios)
 
 
+def _porcentajes(ps) -> list:
+    """Probabilidades a enteros que suman 100 (mayor resto)."""
+    base = [int(p * 100) for p in ps]
+    resto = sorted(range(len(ps)), key=lambda i: ps[i] * 100 - base[i], reverse=True)
+    for i in resto[:100 - sum(base)]:
+        base[i] += 1
+    return base
+
+
+def desde_jornada(fecha: str, etiqueta: str, corta: str, notas: dict) -> list:
+    """Partidos (formato de la web y de la app) desde outputs/jornadas/<fecha>.json.
+    `notas`: {id: texto corto} redactado a partir del debate."""
+    from src.en_vivo import _slug
+    previos = json.loads((DATOS / "partidos.json").read_text(encoding="utf-8"))["partidos"]
+    nombre = {}
+    for p in previos:
+        nombre[p["escL"]], nombre[p["escV"]] = p["local"], p["visita"]
+    filas = json.loads((RAIZ / "outputs" / "jornadas" / f"{fecha}.json").read_text(encoding="utf-8"))
+    out = []
+    for r in filas:
+        sl, sv = _slug(r["home"]), _slug(r["away"])
+        pid = f"{fecha}-{sl}-{sv}"
+        pl, pe, pv = _porcentajes([r["p_home"], r["p_draw"], r["p_away"]])
+        out.append({
+            "id": pid, "fecha": fecha, "hora": r["hora"], "jornada": etiqueta, "jornadaCorta": corta,
+            "local": nombre.get(sl, r["home"]), "visita": nombre.get(sv, r["away"]), "escL": sl, "escV": sv,
+            "pl": pl, "pe": pe, "pv": pv, "marcador": r["score"],
+            "xgL": round(r["xg_home"], 2), "xgV": round(r["xg_away"], 2), "q": r.get("q"),
+            "fuente": r["fuente"].capitalize(), "ajuste": bool(r["override"]),
+            "nota": notas.get(pid, ""), "estado": "por_empezar", "real": None, "minuto": None, "stats": {},
+        })
+    return out
+
+
 def publicar(mensaje: str) -> bool:
     """Commit + push de docs/data. Devuelve False si git falla."""
     def git(*args):
@@ -45,6 +81,12 @@ def publicar(mensaje: str) -> bool:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 7 and sys.argv[1] == "jornada":
+        notas = json.loads(Path(sys.argv[5]).read_text(encoding="utf-8")) if Path(sys.argv[5]).exists() else {}
+        ps = desde_jornada(sys.argv[2], sys.argv[3], sys.argv[4], notas)
+        Path(sys.argv[6]).write_text(json.dumps(ps, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"{len(ps)} partidos en {sys.argv[6]}")
+        sys.exit(0)
     if len(sys.argv) < 4 or sys.argv[1] != "aplicar":
         sys.exit('Uso: python -m src.web_datos aplicar <cambios.json> "<mensaje>"')
     n = aplicar_partidos(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")))
