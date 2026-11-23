@@ -9,7 +9,8 @@ aún no empezaron (hora de America/Lima).
 Salidas: outputs/debates/<local>_<visita>_<ts>.json (cada debate) y
 outputs/jornadas/<fecha>.json (resumen de la fecha, se reescribe partido a partido).
 
-Uso:  python -m src.debate_jornada [today|tomorrow|YYYY-MM-DD]
+Uso:  python -m src.debate_jornada [today|tomorrow|YYYY-MM-DD] [equipo ...]
+      (con equipos, rehace solo esos partidos y los reemplaza en el resumen)
 """
 import json
 import sys
@@ -46,14 +47,18 @@ def _hora(e) -> datetime:
 
 
 def _pos_texto(res, team) -> str:
+    """res con nombres normalizados (odds.results_as_training): con los nombres
+    crudos de las dos fuentes un club aparecía dos veces y la tabla salía mal."""
     if team is None or res.empty:
         return "—"
-    t = league.standings(res.rename(columns={"home": "home_team", "away": "away_team"}))
+    t = league.standings(res)
     row = t[t["team"] == team]
     if row.empty:
         return "aún sin partidos"
     r = row.iloc[0]
-    return f"{int(r['pos'])}º, {int(r['pts'])} pts, DG {int(r['dg']):+d} ({r['zona']})"
+    zona = "zona de eliminación" if r["zona"] == "eliminado" else f"zona {r['zona']}"
+    return (f"{int(r['pos'])}º de {len(t)}, {int(r['pts'])} pts, DG {int(r['dg']):+d} "
+            f"({zona}; le quedan {8 - int(r['pj'])} partidos)")
 
 
 def _top_scores(P, n=3) -> str:
@@ -90,7 +95,7 @@ def main():
 
     print(f"[setup] ingesta + entrenamiento (fecha={fecha})")
     of.download_all(DATA)
-    res = odds.fetch_results(DATA)
+    res = odds.results_as_training(DATA)
     model, df = train()
     T, g, w, w_score = load_cal()
     print(f"[setup] {model.n_matches} partidos, {len(model.teams)} equipos · "
@@ -100,8 +105,17 @@ def main():
     events = sorted((e for e in (odds.fetch_odds() or [])
                      if _hora(e).strftime("%Y-%m-%d") == fecha and _hora(e) > ahora),
                     key=lambda e: e["commence_time"])
+    solo = [s.lower() for s in sys.argv[2:]]  # opcional: rehacer solo estos partidos
+    if solo:
+        events = [e for e in events if any(s in f"{e['home_team']} vs {e['away_team']}".lower()
+                                           for s in solo)]
     print(f"[setup] {len(events)} partidos sin empezar en {fecha}\n")
 
+    previos = []
+    if solo and resumen_path.exists():
+        claves = {(e["home_team"], e["away_team"]) for e in events}
+        previos = [r for r in json.loads(resumen_path.read_text(encoding="utf-8"))
+                   if (r["home"], r["away"]) not in claves]
     rows = []
     cuota_agotada = False
     for k, e in enumerate(events, 1):
@@ -202,7 +216,8 @@ def main():
             "delta_home": dh, "delta_away": da, "bajas": bajas, "override": override_ap,
             "factores": v.factores, "resumen": v.resumen, "degraded": degraded,
         })
-        resumen_path.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
+        todas = sorted(previos + rows, key=lambda r: (r["hora"], r["home"]))
+        resumen_path.write_text(json.dumps(todas, ensure_ascii=False, indent=1), encoding="utf-8")
 
     print(f"[fin] listo. Resumen en {resumen_path}" if rows else "[fin] sin partidos que debatir")
 

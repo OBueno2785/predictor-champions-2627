@@ -1,10 +1,10 @@
 {
- "T": 0.624,
- "actualizado": "2026-11-17",
+ "T": 0.628,
+ "actualizado": "2026-11-23",
  "avisos": [
   {
-   "texto": "Jornada 5 (24 y 25/11): pronósticos de modelo + mercado con las cuotas del 17/11. Falta el ajuste del debate (bajas confirmadas); se agrega más cerca de cada fecha.",
-   "tipo": "warn"
+   "texto": "Jornada 5 (24 y 25/11): pronósticos con debate de bajas y cuotas del 23/11. Bajas de mayor impacto verificadas en prensa: Kane y Olise (Bayern), Doué (PSG), Lamine Yamal (Barcelona), Saka, Zubimendi y Raya (Arsenal), 11 ausentes en Napoli.",
+   "tipo": "info"
   },
   {
    "texto": "El modelo se entrena con 16 ligas domésticas y las 3 copas europeas: cubre a los 36 equipos de esta Champions.",
@@ -17,19 +17,19 @@
  ],
  "base": "16 ligas domésticas y las 3 copas europeas, desde 2023-24",
  "equipos": 432,
- "goles": 1.15,
+ "goles": 1.149,
  "nScore": 36,
- "partidosAjuste": 17948,
+ "partidosAjuste": 18064,
  "ultimaEjecucion": {
-  "fecha": "2026-11-17",
-  "tarea": "Actualizar datos y pronosticar la jornada 5",
+  "fecha": "2026-11-23",
+  "tarea": "Actualizar datos y debatir la jornada 5",
   "lineas": [
-   "Base: 17.948 partidos (ligas hasta el 8/11) · 432 equipos",
+   "Base: 18.064 partidos (ligas hasta el 22/11) · 432 equipos",
    "CL 26-27: 72 jugados | con modelo: 72",
-   "goles: real/predicho ×1,21 → ×1,150",
-   "temperatura ajustada: 0,624",
-   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,02, tope ±0,15; n=36)",
-   "Jornada 5: 18 partidos con cuotas de 19-20 casas; debate no disponible (sesión de Claude Code expirada)"
+   "goles: real/predicho ×1,21 → ×1,149",
+   "temperatura ajustada: 0,628",
+   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,08, tope ±0,15; n=36)",
+   "Jornada 5: 18 debates; corregida la tabla que recibía el debate (nombres duplicados) y rehechos 3"
   ]
  },
  "wMarket": 0.75,
