@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-23T11:29:55-05:00",
+ "actualizado": "2026-11-24T17:33:34-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -736,8 +736,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Arsenal sin Saka, Zubimendi ni Raya (ataja Kepa).",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "1-1",
    "minuto": null,
    "stats": {}
   },
@@ -765,8 +765,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "LASK sin su central Andrade, Bello ni Flecker.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "1-0",
    "minuto": null,
    "stats": {}
   },
@@ -794,8 +794,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "AEK sin Koita (suspendido) ni Arriaga; Como con bajas en ataque (Diao, Addai, Jesús Rodríguez).",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "1-0",
    "minuto": null,
    "stats": {}
   },
@@ -823,8 +823,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Feyenoord sin tres defensas titulares (Bos, St. Juste, Beelen).",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "0-1",
    "minuto": null,
    "stats": {}
   },
@@ -852,8 +852,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Galatasaray sin Osimhen ni Leão; Villa sin Onana, Cash ni Ruggeri.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "1-0",
    "minuto": null,
    "stats": {}
   },
@@ -881,8 +881,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Napoli con 11 ausentes, entre ellos Lobotka, Di Lorenzo, Buongiorno y Meret; Rafa Marín suspendido.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "2-2",
    "minuto": null,
    "stats": {}
   },
@@ -910,8 +910,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Lens sin Édouard; Leipzig sin Guiu ni Ouédraogo.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "3-1",
    "minuto": null,
    "stats": {}
   },
@@ -939,8 +939,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "PSV sin Pléa ni Nagalo.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "5-1",
    "minuto": null,
    "stats": {}
   },
@@ -968,8 +968,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Betis rota 7-8 titulares y no tiene a Ceballos ni Morante.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "final",
+   "real": "0-2",
    "minuto": null,
    "stats": {}
   },
