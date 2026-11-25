@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T16:54:40-05:00",
+ "actualizado": "2026-11-25T17:06:52-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -1026,7 +1026,7 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Liverpool sin Gakpo ni Gravenberch y con rotaciones; Brugge sin Ordóñez.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "0-3",
    "minuto": null,
    "stats": {}
@@ -1055,7 +1055,7 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Inter sin Çalhanoğlu (3-4 semanas) ni Bonny.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "2-0",
    "minuto": null,
    "stats": {}
@@ -1113,7 +1113,7 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "PSG sin Doué ni Kvaratskhelia (ligamento cruzado); Roma sin Pellegrini ni Rensch.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "2-2",
    "minuto": null,
    "stats": {}
@@ -1171,7 +1171,7 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Shakhtar (local en Londres) sin Kauã Elias, Pedrinho ni Mendoza; ocho de sus jugadores quedaron retenidos en la frontera polaca.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "0-1",
    "minuto": null,
    "stats": {}
@@ -1229,7 +1229,7 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "United sin Cunha (suspendido), Šeško, Ugarte, Rashford ni Baleba.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "2-2",
    "minuto": null,
    "stats": {}
