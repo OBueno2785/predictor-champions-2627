@@ -1,10 +1,10 @@
 {
- "T": 0.652,
+ "T": 0.672,
  "actualizado": "2026-11-25",
  "avisos": [
   {
-   "texto": "Pronósticos del 25/11 recalibrados con los 9 resultados del 24/11 (81 partidos). Bajas de mayor impacto verificadas en prensa: Kane y Olise (Bayern), Doué y Kvaratskhelia (PSG), Lamine Yamal (Barcelona), Gakpo y Gravenberch (Liverpool), Cunha, Šeško y Ugarte (United).",
-   "tipo": "info"
+   "tipo": "info",
+   "texto": "Modelo recalibrado con los 9 resultados del 25/11 (90 partidos). Los clubes ucranianos, que juegan de local fuera de su país, reciben media ventaja de localía."
   },
   {
    "texto": "El modelo se entrena con 16 ligas domésticas y las 3 copas europeas: cubre a los 36 equipos de esta Champions.",
@@ -17,19 +17,19 @@
  ],
  "base": "16 ligas domésticas y las 3 copas europeas, desde 2023-24",
  "equipos": 432,
- "goles": 1.121,
- "nScore": 45,
- "partidosAjuste": 18079,
+ "goles": 1.099,
+ "nScore": 54,
+ "partidosAjuste": 17553,
  "ultimaEjecucion": {
   "fecha": "2026-11-25",
-  "tarea": "Resultados del 24/11, recalibrar y debatir el 25/11",
+  "tarea": "Resultados del 25/11 y recalibración",
   "lineas": [
-   "Resultados nuevos: 9 (24/11) · total CL 26-27: 81 | con modelo: 81",
-   "Base: 18.079 partidos · 432 equipos",
-   "goles: real/predicho ×1,17 → ×1,121",
-   "temperatura ajustada: 0,652",
-   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,20, tope ±0,15; n=45)",
-   "25/11: 9 debates con cuotas del 24/11 (movimiento ≤3 pp hasta la mañana); Brugge-Liverpool rehecho el 25/11"
+   "Resultados nuevos: 9 (25/11) · total CL 26-27: 90 | con modelo: 90",
+   "Base: 17.553 partidos · 432 equipos",
+   "goles: real/predicho ×1,13 → ×1,099",
+   "temperatura ajustada: 0,672",
+   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,29, tope ±0,15; n=54)",
+   "Media localía para clubes ucranianos en copas europeas (47 partidos de entrenamiento + Shakhtar)"
   ]
  },
  "wMarket": 0.75,
