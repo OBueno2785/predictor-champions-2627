@@ -14,6 +14,7 @@ Uso:  python -m src.debate_jornada [today|tomorrow|YYYY-MM-DD] [equipo ...]
 """
 import json
 import sys
+import unicodedata
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -40,6 +41,10 @@ def _fecha(arg: str) -> str:
     if arg == "tomorrow":
         return (ahora + timedelta(days=1)).strftime("%Y-%m-%d")
     return arg
+
+
+def _plano(s: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c)).lower()
 
 
 def _hora(e) -> datetime:
@@ -96,7 +101,7 @@ def main():
     print(f"[setup] ingesta + entrenamiento (fecha={fecha})")
     of.download_all(DATA)
     res = odds.results_as_training(DATA)
-    model, df = train()
+    model, df = train(res)
     T, g, w, w_score = load_cal()
     print(f"[setup] {model.n_matches} partidos, {len(model.teams)} equipos · "
           f"T={T:.3f} goles x{g:.3f} w={w:.2f} w_score={w_score:.2f}")
@@ -105,21 +110,39 @@ def main():
     events = sorted((e for e in (odds.fetch_odds() or [])
                      if _hora(e).strftime("%Y-%m-%d") == fecha and _hora(e) > ahora),
                     key=lambda e: e["commence_time"])
-    solo = [s.lower() for s in sys.argv[2:]]  # opcional: rehacer solo estos partidos
+    solo = [_plano(s) for s in sys.argv[2:]]  # opcional: rehacer solo estos partidos
     if solo:
-        events = [e for e in events if any(s in f"{e['home_team']} vs {e['away_team']}".lower()
-                                           for s in solo)]
+        def _etiqueta(e):
+            h, a = e["home_team"], e["away_team"]
+            return _plano(f"{h} vs {a} | {odds._norm(h)} vs {odds._norm(a)}")
+        for s in solo:
+            if not any(s in _etiqueta(e) for e in events):
+                print(f"[setup] aviso: '{s}' no coincide con ningún partido sin empezar")
+        events = [e for e in events if any(s in _etiqueta(e) for s in solo)]
     print(f"[setup] {len(events)} partidos sin empezar en {fecha}\n")
 
-    previos = []
-    if solo and resumen_path.exists():
-        claves = {(e["home_team"], e["away_team"]) for e in events}
-        previos = [r for r in json.loads(resumen_path.read_text(encoding="utf-8"))
-                   if (r["home"], r["away"]) not in claves]
+    # el resumen conserva los partidos que no se rehacen (ya empezados o fuera del filtro)
+    existentes = {}
+    if resumen_path.exists():
+        existentes = {(r["home"], r["away"]): r
+                      for r in json.loads(resumen_path.read_text(encoding="utf-8"))}
+    claves = {(e["home_team"], e["away_team"]) for e in events}
+    previos = [r for c, r in existentes.items() if c not in claves]
     rows = []
+
+    def escribir():
+        todas = sorted(previos + rows, key=lambda r: (r["hora"], r["home"]))
+        resumen_path.write_text(json.dumps(todas, ensure_ascii=False, indent=1), encoding="utf-8")
+
     cuota_agotada = False
     for k, e in enumerate(events, 1):
         home_lbl, away_lbl = e["home_team"], e["away_team"]
+        clave = (home_lbl, away_lbl)
+        if _hora(e) <= datetime.now(LIMA):
+            print(f"[{k}/{len(events)}] {home_lbl} vs {away_lbl}: ya empezó, se omite")
+            if clave in existentes:
+                rows.append(existentes[clave])
+            continue
         th = odds.match_team(home_lbl, model.teams)
         ta = odds.match_team(away_lbl, model.teams)
         market = odds.implied_probs(e)
@@ -136,6 +159,8 @@ def main():
             fuente = "mercado"
         else:
             print(f"[{k}/{len(events)}] {home_lbl} vs {away_lbl}: sin modelo ni cuotas, se omite")
+            if clave in existentes:
+                rows.append(existentes[clave])
             continue
         P = dixon_coles.matrix_from_rates(lam, mu, model.rho)
         prior_probs = _outc(P)
@@ -148,7 +173,8 @@ def main():
             "top_scores": _top_scores(P, 3),
             "form_home": of.recent_form(df, th) if cov_h else "liga local fuera del pool (ratea vía CL/mercado)",
             "form_away": of.recent_form(df, ta) if cov_a else "liga local fuera del pool (ratea vía CL/mercado)",
-            "pos_home": _pos_texto(res, th), "pos_away": _pos_texto(res, ta),
+            "pos_home": _pos_texto(res, odds._norm(home_lbl)),
+            "pos_away": _pos_texto(res, odds._norm(away_lbl)),
             "odds": market,
         }
 
@@ -168,6 +194,11 @@ def main():
             except Exception as ex:
                 degraded = f"degradado: {str(ex)[:80]}"
                 resultado = _degradado(degraded)
+        if degraded and clave in existentes:
+            print(f"      ⚠{degraded} — se conserva el pronóstico previo\n")
+            rows.append(existentes[clave])
+            escribir()
+            continue
 
         dh, da = resultado.delta_home, resultado.delta_away
         lam2, mu2 = lam * np.exp(dh), mu * np.exp(da)
@@ -205,6 +236,7 @@ def main():
                               "p_away": float(mf_cal[2])}
         ctx["blend_weight_market"] = w if usa_mkt else 0.0
         ctx["final"] = {"p_home": bh, "p_draw": bd, "p_away": ba, **resumen}
+        ctx["odds_total"] = market_total
         debate.guardar(resultado, ctx,
                        DEBATES / f"{home_lbl}_{away_lbl}_{ts}.json".replace(" ", "_").replace("/", "-"))
 
@@ -216,8 +248,7 @@ def main():
             "delta_home": dh, "delta_away": da, "bajas": bajas, "override": override_ap,
             "factores": v.factores, "resumen": v.resumen, "degraded": degraded,
         })
-        todas = sorted(previos + rows, key=lambda r: (r["hora"], r["home"]))
-        resumen_path.write_text(json.dumps(todas, ensure_ascii=False, indent=1), encoding="utf-8")
+        escribir()
 
     print(f"[fin] listo. Resumen en {resumen_path}" if rows else "[fin] sin partidos que debatir")
 

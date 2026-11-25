@@ -75,8 +75,9 @@ def _usable_market_results(model):
         if sc is None:
             continue
         o = d["odds"]
-        uniq[(th, ta)] = ([o["p_home"], o["p_draw"], o["p_away"]], int(sc[0]), int(sc[1]))
-    return [(th, ta, mk, hs, a) for (th, ta), (mk, hs, a) in uniq.items()]
+        uniq[(th, ta)] = ([o["p_home"], o["p_draw"], o["p_away"]], int(sc[0]), int(sc[1]),
+                          d.get("odds_total"))
+    return [(th, ta, mk, hs, a, tot) for (th, ta), (mk, hs, a, tot) in uniq.items()]
 
 
 def fit_score_weight(model, goals_mult, w_market):
@@ -93,10 +94,11 @@ def fit_score_weight(model, goals_mult, w_market):
         return w_market, n, None
     rho = model.rho
     pts = []
-    for th, ta, mk, hs, a in data:
+    for th, ta, mk, hs, a, tot in data:
         lam_md, mu_md = model.rates(th, ta, adv_side=1)
         lam_md, mu_md = lam_md * goals_mult, mu_md * goals_mult
-        lam_m, mu_m = _market_rates(np.array(mk, float), None, rho)
+        # mismo estimador que en producción; los debates antiguos no guardaban la línea de goles
+        lam_m, mu_m = _market_rates(np.array(mk, float), tot, rho)
         pts.append((lam_md, mu_md, lam_m, mu_m, hs, a))
 
     def nll(w):

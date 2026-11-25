@@ -21,10 +21,10 @@ DEBATES = OUT / "debates"
 
 
 def _pos_texto(res, team) -> str:
+    """res con nombres normalizados (odds.results_as_training)."""
     if res.empty:
         return "arranque de la fase de liga (sin partidos)"
-    m = res.rename(columns={"home": "home_team", "away": "away_team"})
-    t = league.standings(m)
+    t = league.standings(res)
     row = t[t["team"] == team]
     if row.empty:
         return "aún sin partidos"
@@ -32,13 +32,11 @@ def _pos_texto(res, team) -> str:
     return f"{int(r['pos'])}º, {int(r['pts'])} pts, DG {int(r['dg']):+d} ({r['zona']})"
 
 
-def build_context(model, df, home, away, cal, market):
-    T, g, *_ = cal
+def build_context(model, df, res, home, away, market):
     P = model.score_matrix(home, away, adv_side=1)
     ph, pd_, pa = model.outcome_probs(P)
     lam, mu = model.rates(home, away, adv_side=1)
     top = model.top_scores(P, 3)
-    res = odds.fetch_results(DATA)
     return {
         "home": home, "away": away, "fecha": datetime.now().strftime("%Y-%m-%d"),
         "jornada": "fase de liga",
@@ -60,8 +58,8 @@ def main():
 
     print("[1/3] Entrenamiento + contexto")
     of.download_all(DATA)
-    odds.fetch_results(DATA)
-    model, df = train()
+    res = odds.results_as_training(DATA)
+    model, df = train(res)
     cal = load_cal()
     T, g, w, w_score = cal
     home = next((t for t in model.teams if args[0].lower() in t.lower()), None)
@@ -72,11 +70,12 @@ def main():
     events = odds.fetch_odds() or []
     market = market_total = None
     for e in events:
-        if odds.match_team(e["home_team"], model.teams) == home:
+        if (odds.match_team(e["home_team"], model.teams) == home
+                and odds.match_team(e["away_team"], model.teams) == away):
             market = odds.implied_probs(e)
             market_total = odds.implied_total(e)
             break
-    ctx = build_context(model, df, home, away, cal, market)
+    ctx = build_context(model, df, res, home, away, market)
     print(f"  {home} vs {away} · prior {ctx['p_home']:.0%}/{ctx['p_draw']:.0%}/{ctx['p_away']:.0%}")
 
     print(f"[2/3] Debate ({rounds} ronda(s), agentes={debate.MODEL}, juez={debate.MODEL_JUEZ})")
@@ -129,7 +128,9 @@ def main():
     ctx["model_final"] = {"p_home": float(mf_cal[0]), "p_draw": float(mf_cal[1]), "p_away": float(mf_cal[2])}
     ctx["blend_weight_market"] = w if usa_mkt else 0.0
     ctx["final"] = {"p_home": bh, "p_draw": bd, "p_away": ba, **resumen}
-    debate.guardar(resultado, ctx, DEBATES / f"{home}_{away}_{ts}.json".replace(" ", "_"))
+    ctx["odds_total"] = market_total
+    debate.guardar(resultado, ctx,
+                   DEBATES / f"{home}_{away}_{ts}.json".replace(" ", "_").replace("/", "-"))
 
 
 if __name__ == "__main__":

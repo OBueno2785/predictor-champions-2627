@@ -57,7 +57,9 @@ def match_team(api_name: str, model_teams) -> str | None:
     if n.lower() in low:
         return low[n.lower()]
     cand = [t for t in model_teams if n.lower() in t.lower() or t.lower() in n.lower()]
-    return cand[0] if len(cand) == 1 else (cand[0] if cand else None)
+    if len(cand) > 1:
+        print(f"[match_team] '{api_name}' ambiguo: {cand}; se trata como sin modelo")
+    return cand[0] if len(cand) == 1 else None
 
 
 def fetch_odds() -> list | None:

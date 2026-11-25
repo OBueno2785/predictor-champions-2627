@@ -198,6 +198,7 @@ def guardar(resultado: ResultadoDebate, ctx: dict, dest) -> None:
         "fecha": str(ctx["fecha"]),
         "prior": {k: ctx[k] for k in ["xg_home", "xg_away", "p_home", "p_draw", "p_away"]},
         "odds": ctx.get("odds"),
+        "odds_total": ctx.get("odds_total"),
         "model_final": ctx.get("model_final"),
         "blend_weight_market": ctx.get("blend_weight_market"),
         "final": ctx.get("final"),

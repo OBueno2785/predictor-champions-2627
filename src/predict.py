@@ -33,9 +33,10 @@ def ingest(offline: bool = False) -> None:
         odds.fetch_results(DATA)
 
 
-def train():
+def train(res=None):
     base = of.load_training(DATA)
-    res = odds.results_as_training(DATA)
+    if res is None:
+        res = odds.results_as_training(DATA)
     df = base if res.empty else pd.concat([base, res], ignore_index=True)
     return dixon_coles.fit(df), df
 

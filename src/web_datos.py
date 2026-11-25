@@ -22,16 +22,22 @@ FIRMA = "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 
 def aplicar_partidos(cambios: list) -> int:
-    """Fusiona cada cambio en el partido con el mismo `id` (lo crea si no existe)."""
+    """Fusiona cada cambio en el partido con el mismo `id`. Solo crea partidos
+    a partir de cambios completos (con local/visita): un marcador en vivo de un
+    partido sin pronóstico no se publica."""
     ruta = DATOS / "partidos.json"
     doc = json.loads(ruta.read_text(encoding="utf-8"))
     por_id = {p["id"]: p for p in doc["partidos"]}
+    n = 0
     for c in cambios:
+        if c["id"] not in por_id and not {"local", "visita", "escL", "escV"} <= c.keys():
+            continue
         por_id.setdefault(c["id"], {}).update(c)
+        n += 1
     doc["partidos"] = sorted(por_id.values(), key=lambda p: p["id"])
     doc["actualizado"] = datetime.now(LIMA).isoformat(timespec="seconds")
     ruta.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
-    return len(cambios)
+    return n
 
 
 def _porcentajes(ps) -> list:
@@ -45,26 +51,35 @@ def _porcentajes(ps) -> list:
 
 def desde_jornada(fecha: str, etiqueta: str, corta: str, notas: dict) -> list:
     """Partidos (formato de la web y de la app) desde outputs/jornadas/<fecha>.json.
-    `notas`: {id: texto corto} redactado a partir del debate."""
+    `notas`: {id: texto corto} redactado a partir del debate. En partidos ya
+    publicados no toca el estado en vivo/final ni la nota si no hay una nueva."""
     from src.en_vivo import _slug
     previos = json.loads((DATOS / "partidos.json").read_text(encoding="utf-8"))["partidos"]
+    publicados = {p["id"] for p in previos}
     nombre = {}
     for p in previos:
-        nombre[p["escL"]], nombre[p["escV"]] = p["local"], p["visita"]
+        if {"local", "visita", "escL", "escV"} <= p.keys():
+            nombre[p["escL"]], nombre[p["escV"]] = p["local"], p["visita"]
     filas = json.loads((RAIZ / "outputs" / "jornadas" / f"{fecha}.json").read_text(encoding="utf-8"))
     out = []
     for r in filas:
         sl, sv = _slug(r["home"]), _slug(r["away"])
         pid = f"{fecha}-{sl}-{sv}"
         pl, pe, pv = _porcentajes([r["p_home"], r["p_draw"], r["p_away"]])
-        out.append({
+        p = {
             "id": pid, "fecha": fecha, "hora": r["hora"], "jornada": etiqueta, "jornadaCorta": corta,
             "local": nombre.get(sl, r["home"]), "visita": nombre.get(sv, r["away"]), "escL": sl, "escV": sv,
             "pl": pl, "pe": pe, "pv": pv, "marcador": r["score"],
             "xgL": round(r["xg_home"], 2), "xgV": round(r["xg_away"], 2), "q": r.get("q"),
             "fuente": r["fuente"].capitalize(), "ajuste": bool(r["override"]),
             "nota": notas.get(pid, ""), "estado": "por_empezar", "real": None, "minuto": None, "stats": {},
-        })
+        }
+        if pid in publicados:
+            for k in ("estado", "real", "minuto", "stats"):
+                del p[k]
+            if pid not in notas:
+                del p["nota"]
+        out.append(p)
     return out
 
 
@@ -73,9 +88,9 @@ def publicar(mensaje: str) -> bool:
     def git(*args):
         return subprocess.run(["git", *args], cwd=RAIZ, capture_output=True, text=True)
     git("add", "docs/data")
-    if git("diff", "--cached", "--quiet").returncode == 0:
+    if git("diff", "--cached", "--quiet", "--", "docs/data").returncode == 0:
         return True
-    if git("commit", "-q", "-m", mensaje + FIRMA).returncode != 0:
+    if git("commit", "-q", "-m", mensaje + FIRMA, "--", "docs/data").returncode != 0:
         return False
     return git("push", "-q").returncode == 0
 
