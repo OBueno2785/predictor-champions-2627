@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T16:46:31-05:00",
+ "actualizado": "2026-11-25T16:54:40-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -997,7 +997,7 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Atlético sin Lookman ni Cuti Romero; Viking sin tres defensas titulares ni D'Agostino.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "2-0",
    "minuto": null,
    "stats": {}
@@ -1027,7 +1027,7 @@
    "ajuste": true,
    "nota": "Liverpool sin Gakpo ni Gravenberch y con rotaciones; Brugge sin Ordóñez.",
    "estado": "en_vivo",
-   "real": "0-2",
+   "real": "0-3",
    "minuto": null,
    "stats": {}
   },
@@ -1084,7 +1084,7 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Bayern sin Kane ni Olise; Lille recupera a Ethan Mbappé.",
-   "estado": "en_vivo",
+   "estado": "final",
    "real": "2-1",
    "minuto": null,
    "stats": {}
@@ -1230,7 +1230,7 @@
    "ajuste": true,
    "nota": "United sin Cunha (suspendido), Šeško, Ugarte, Rashford ni Baleba.",
    "estado": "en_vivo",
-   "real": "2-3",
+   "real": "2-2",
    "minuto": null,
    "stats": {}
   }
