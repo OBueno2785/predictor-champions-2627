@@ -1,9 +1,9 @@
 {
- "T": 0.628,
- "actualizado": "2026-11-23",
+ "T": 0.652,
+ "actualizado": "2026-11-25",
  "avisos": [
   {
-   "texto": "Jornada 5 (24 y 25/11): pronósticos con debate de bajas y cuotas del 23/11. Bajas de mayor impacto verificadas en prensa: Kane y Olise (Bayern), Doué (PSG), Lamine Yamal (Barcelona), Saka, Zubimendi y Raya (Arsenal), 11 ausentes en Napoli.",
+   "texto": "Pronósticos del 25/11 recalibrados con los 9 resultados del 24/11 (81 partidos). Bajas de mayor impacto verificadas en prensa: Kane y Olise (Bayern), Doué y Kvaratskhelia (PSG), Lamine Yamal (Barcelona), Gakpo y Gravenberch (Liverpool), Cunha, Šeško y Ugarte (United).",
    "tipo": "info"
   },
   {
@@ -17,19 +17,19 @@
  ],
  "base": "16 ligas domésticas y las 3 copas europeas, desde 2023-24",
  "equipos": 432,
- "goles": 1.149,
- "nScore": 36,
- "partidosAjuste": 18064,
+ "goles": 1.121,
+ "nScore": 45,
+ "partidosAjuste": 18079,
  "ultimaEjecucion": {
-  "fecha": "2026-11-23",
-  "tarea": "Actualizar datos y debatir la jornada 5",
+  "fecha": "2026-11-25",
+  "tarea": "Resultados del 24/11, recalibrar y debatir el 25/11",
   "lineas": [
-   "Base: 18.064 partidos (ligas hasta el 22/11) · 432 equipos",
-   "CL 26-27: 72 jugados | con modelo: 72",
-   "goles: real/predicho ×1,21 → ×1,149",
-   "temperatura ajustada: 0,628",
-   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,08, tope ±0,15; n=36)",
-   "Jornada 5: 18 debates; corregida la tabla que recibía el debate (nombres duplicados) y rehechos 3"
+   "Resultados nuevos: 9 (24/11) · total CL 26-27: 81 | con modelo: 81",
+   "Base: 18.079 partidos · 432 equipos",
+   "goles: real/predicho ×1,17 → ×1,121",
+   "temperatura ajustada: 0,652",
+   "w_market 0,75 (por defecto) · w_score 0,60 (óptimo 0,20, tope ±0,15; n=45)",
+   "25/11: 9 debates con cuotas del 24/11 (movimiento ≤3 pp hasta la mañana); Brugge-Liverpool rehecho el 25/11"
   ]
  },
  "wMarket": 0.75,
