@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T16:34:22-05:00",
+ "actualizado": "2026-11-25T16:46:31-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -1027,7 +1027,7 @@
    "ajuste": true,
    "nota": "Liverpool sin Gakpo ni Gravenberch y con rotaciones; Brugge sin Ordóñez.",
    "estado": "en_vivo",
-   "real": "0-1",
+   "real": "0-2",
    "minuto": null,
    "stats": {}
   },
@@ -1056,7 +1056,7 @@
    "ajuste": false,
    "nota": "Inter sin Çalhanoğlu (3-4 semanas) ni Bonny.",
    "estado": "en_vivo",
-   "real": "1-0",
+   "real": "2-0",
    "minuto": null,
    "stats": {}
   },
@@ -1114,7 +1114,7 @@
    "ajuste": true,
    "nota": "PSG sin Doué ni Kvaratskhelia (ligamento cruzado); Roma sin Pellegrini ni Rensch.",
    "estado": "en_vivo",
-   "real": "2-1",
+   "real": "2-2",
    "minuto": null,
    "stats": {}
   },
@@ -1230,7 +1230,7 @@
    "ajuste": true,
    "nota": "United sin Cunha (suspendido), Šeško, Ugarte, Rashford ni Baleba.",
    "estado": "en_vivo",
-   "real": "1-2",
+   "real": "2-3",
    "minuto": null,
    "stats": {}
   }
