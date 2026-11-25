@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T14:02:35-05:00",
+ "actualizado": "2026-11-25T14:10:42-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -1143,7 +1143,7 @@
    "ajuste": false,
    "nota": "Barcelona sin Lamine Yamal (tobillo), Rodri ni Christensen; Flick rota por el viaje a Bakú.",
    "estado": "en_vivo",
-   "real": "0-3",
+   "real": "1-4",
    "minuto": null,
    "stats": {}
   },
@@ -1201,7 +1201,7 @@
    "ajuste": true,
    "nota": "Villarreal sin Gerard Moreno; Slavia sin Provod y recupera a Chytil.",
    "estado": "en_vivo",
-   "real": "0-0",
+   "real": "0-1",
    "minuto": null,
    "stats": {}
   },
