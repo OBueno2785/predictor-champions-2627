@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T14:42:57-05:00",
+ "actualizado": "2026-11-25T15:01:08-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -1055,8 +1055,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Inter sin Çalhanoğlu (3-4 semanas) ni Bonny.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
@@ -1229,8 +1229,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "United sin Cunha (suspendido), Šeško, Ugarte, Rashford ni Baleba.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   }
