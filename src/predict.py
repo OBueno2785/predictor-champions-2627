@@ -33,12 +33,30 @@ def ingest(offline: bool = False) -> None:
         odds.fetch_results(DATA)
 
 
+# Los clubes ucranianos juegan de local fuera de su país en las copas europeas
+# (la UEFA no permite partidos en Ucrania desde 2022): media ventaja de localía.
+LIGAS_EXILIO = {"UKR"}
+COPAS_EUROPEAS = {"CL", "CLQ", "EL", "ELQ", "UECL", "UECLQ"}
+FACTOR_EXILIO = 0.5
+
+
 def train(res=None):
     base = of.load_training(DATA)
     if res is None:
         res = odds.results_as_training(DATA)
     df = base if res.empty else pd.concat([base, res], ignore_index=True)
-    return dixon_coles.fit(df), df
+    exilio = set(df.loc[df["competition"].isin(LIGAS_EXILIO), "home_team"])
+    local = (~df["neutral"].astype(bool)).astype(float)
+    en_exilio = df["competition"].isin(COPAS_EUROPEAS) & df["home_team"].isin(exilio)
+    df["home_factor"] = local.where(~en_exilio, local * FACTOR_EXILIO)
+    model = dixon_coles.fit(df)
+    model.exilio = exilio
+    return model, df
+
+
+def lado_local(model, home) -> float:
+    """adv_side del local en un partido de Champions."""
+    return FACTOR_EXILIO if home in model.exilio else 1.0
 
 
 def load_cal() -> tuple[float, float, float, float]:
@@ -92,7 +110,7 @@ def _implied_rates(target, rho):
 
 def predict_match(model, home, away, market, cal, neutral=False, market_total=None):
     T, g, w, w_score = cal
-    side = 0 if neutral else 1
+    side = 0 if neutral else lado_local(model, home)
     cubierto = home in model.attack and away in model.attack
     if cubierto:
         P = model.score_matrix(home, away, adv_side=side)

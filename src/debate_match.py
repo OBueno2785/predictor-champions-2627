@@ -15,7 +15,7 @@ from src.agents.schemas import VeredictoJuez
 from src.calibration import temperature
 from src.ingest import odds, openfootball as of
 from src.model import dixon_coles
-from src.predict import DATA, OUT, load_cal, train, _market_rates
+from src.predict import DATA, OUT, lado_local, load_cal, train, _market_rates
 
 DEBATES = OUT / "debates"
 
@@ -33,11 +33,12 @@ def _pos_texto(res, team) -> str:
 
 
 def build_context(model, df, res, home, away, market):
-    P = model.score_matrix(home, away, adv_side=1)
+    lado = lado_local(model, home)
+    P = model.score_matrix(home, away, adv_side=lado)
     ph, pd_, pa = model.outcome_probs(P)
-    lam, mu = model.rates(home, away, adv_side=1)
+    lam, mu = model.rates(home, away, adv_side=lado)
     top = model.top_scores(P, 3)
-    return {
+    ctx = {
         "home": home, "away": away, "fecha": datetime.now().strftime("%Y-%m-%d"),
         "jornada": "fase de liga",
         "xg_home": float(lam), "xg_away": float(mu),
@@ -47,6 +48,10 @@ def build_context(model, df, res, home, away, market):
         "pos_home": _pos_texto(res, home), "pos_away": _pos_texto(res, away),
         "odds": market,
     }
+    if lado < 1:
+        ctx["localia"] = (f"{home} juega de local fuera de su país (club ucraniano en el exilio): "
+                          f"el modelo le aplica media ventaja de localía.")
+    return ctx
 
 
 def main():
@@ -93,7 +98,7 @@ def main():
         print(f"  AVISO degradado: {degraded}")
 
     print("[3/3] Predicción final")
-    lam, mu = model.rates(home, away, adv_side=1,
+    lam, mu = model.rates(home, away, adv_side=lado_local(model, home),
                           delta_home=resultado.delta_home, delta_away=resultado.delta_away)
     P = dixon_coles.matrix_from_rates(lam, mu, model.rho)
     mf_cal = temperature.apply(np.array(model.outcome_probs(P)), T)

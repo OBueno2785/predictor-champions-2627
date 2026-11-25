@@ -48,18 +48,20 @@ class DixonColesModel:
     fitted_at: str = ""
     n_matches: int = 0
     teams: list = field(default_factory=list)
+    exilio: set = field(default_factory=set)  # locales en el exilio en copas europeas
 
-    def rates(self, home: str, away: str, adv_side: int = 0,
+    def rates(self, home: str, away: str, adv_side: float = 0,
               delta_home: float = 0.0, delta_away: float = 0.0):
-        """adv_side: +1 ventaja para home, -1 para away, 0 neutral.
+        """adv_side: +1 ventaja para home, -1 para away, 0 neutral; fracciones
+        para ventaja parcial (0.5 = media localía).
         delta_*: ajustes en log-xG provenientes del debate multiagente."""
-        adv_h = self.home_adv if adv_side == 1 else 0.0
-        adv_a = self.home_adv if adv_side == -1 else 0.0
+        adv_h = self.home_adv * max(adv_side, 0)
+        adv_a = self.home_adv * max(-adv_side, 0)
         lam = np.exp(self.intercept + adv_h + self.attack[home] - self.defense[away] + delta_home)
         mu = np.exp(self.intercept + adv_a + self.attack[away] - self.defense[home] + delta_away)
         return lam, mu
 
-    def score_matrix(self, home: str, away: str, adv_side: int = 0,
+    def score_matrix(self, home: str, away: str, adv_side: float = 0,
                      delta_home: float = 0.0, delta_away: float = 0.0,
                      max_goals: int = MAX_GOALS) -> np.ndarray:
         lam, mu = self.rates(home, away, adv_side, delta_home, delta_away)
@@ -85,7 +87,8 @@ class DixonColesModel:
 
 def fit(df: pd.DataFrame, ref_date=None, xi: float = XI_DAILY,
         l2: float = L2_PENALTY) -> DixonColesModel:
-    """df: date, home_team, away_team, home_score, away_score, neutral, weight_importance."""
+    """df: date, home_team, away_team, home_score, away_score, neutral, weight_importance
+    y opcional home_factor (fracción de la ventaja de localía; si falta, 1 - neutral)."""
     # Filtra equipos con muestra mínima (selecciones no-FIFA con red desconectada
     # distorsionan el ranking). Dos pasadas para estabilizar.
     for _ in range(2):
@@ -104,7 +107,7 @@ def fit(df: pd.DataFrame, ref_date=None, xi: float = XI_DAILY,
     ai = df["away_team"].map(idx).to_numpy()
     hg = df["home_score"].to_numpy(dtype=float)
     ag = df["away_score"].to_numpy(dtype=float)
-    home_flag = (~df["neutral"]).to_numpy(dtype=float)
+    home_flag = (df["home_factor"] if "home_factor" in df else ~df["neutral"]).to_numpy(dtype=float)
 
     def nll_grad(params):
         att, dfn = params[:n], params[n:2 * n]

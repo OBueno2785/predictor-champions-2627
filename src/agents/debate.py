@@ -93,7 +93,7 @@ def render_contexto(ctx: dict) -> str:
     lines = [
         f"# Partido: {ctx['home']} vs {ctx['away']} (local vs visita)",
         f"Champions League 2026-27 — {ctx.get('jornada', 'fase de liga')} · {ctx['fecha']}",
-        f"{ctx['home']} juega en casa (ventaja de localía aplicada).",
+        ctx.get("localia") or f"{ctx['home']} juega en casa (ventaja de localía aplicada).",
         "",
         "## Prior del modelo Dixon-Coles",
         f"- xG esperado: {ctx['home']} {ctx['xg_home']:.2f} — {ctx['xg_away']:.2f} {ctx['away']}",

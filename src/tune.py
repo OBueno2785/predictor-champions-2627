@@ -15,6 +15,7 @@ import numpy as np
 from src.calibration import metrics, temperature
 from src.ingest import odds, openfootball as of, tsdb
 from src.model import dixon_coles
+from src.predict import lado_local, train
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
@@ -95,7 +96,7 @@ def fit_score_weight(model, goals_mult, w_market):
     rho = model.rho
     pts = []
     for th, ta, mk, hs, a, tot in data:
-        lam_md, mu_md = model.rates(th, ta, adv_side=1)
+        lam_md, mu_md = model.rates(th, ta, adv_side=lado_local(model, th))
         lam_md, mu_md = lam_md * goals_mult, mu_md * goals_mult
         # mismo estimador que en producción; los debates antiguos no guardaban la línea de goles
         lam_m, mu_m = _market_rates(np.array(mk, float), tot, rho)
@@ -129,11 +130,8 @@ def main():
               f"(ver python -m src.ingest.tsdb)")
     nuevos = odds.fetch_results_fechas(DATA, N_FECHAS_RESULTADOS)
     print(f"Resultados de las últimas {N_FECHAS_RESULTADOS} fechas (TheSportsDB): {nuevos} nuevos")
-    base = of.load_training(DATA)
     res = odds.results_as_training(DATA)
-    df = base if res.empty else \
-        __import__("pandas").concat([base, res], ignore_index=True)
-    model = dixon_coles.fit(df)
+    model, df = train(res)
 
     cov = [r for r in res.itertuples()
            if r.home_team in model.attack and r.away_team in model.attack] if not res.empty else []
@@ -145,7 +143,7 @@ def main():
     if n >= 3:
         pred_tot = real_tot = 0.0
         for r in cov:
-            lam, mu = model.rates(r.home_team, r.away_team, adv_side=1)
+            lam, mu = model.rates(r.home_team, r.away_team, adv_side=lado_local(model, r.home_team))
             pred_tot += lam + mu
             real_tot += r.home_score + r.away_score
         ratio = real_tot / pred_tot
@@ -157,8 +155,8 @@ def main():
     # temperature: solo con muestra suficiente
     T = 1.0
     if n >= MIN_FOR_T:
-        probs = np.array([model.outcome_probs(model.score_matrix(r.home_team, r.away_team, adv_side=1))
-                          for r in cov])
+        probs = np.array([model.outcome_probs(model.score_matrix(
+            r.home_team, r.away_team, adv_side=lado_local(model, r.home_team))) for r in cov])
         outs = np.array([0 if r.home_score > r.away_score else (1 if r.home_score == r.away_score else 2)
                          for r in cov])
         T = temperature.fit(probs, outs)

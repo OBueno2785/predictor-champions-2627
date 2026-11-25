@@ -26,7 +26,7 @@ from src.agents.schemas import VeredictoJuez
 from src.calibration import temperature
 from src.ingest import odds, openfootball as of
 from src.model import dixon_coles
-from src.predict import DATA, OUT, _implied_rates, _market_rates, _outc, load_cal, train
+from src.predict import DATA, OUT, _implied_rates, _market_rates, _outc, lado_local, load_cal, train
 
 DEBATES = OUT / "debates"
 JORNADAS = OUT / "jornadas"
@@ -151,8 +151,9 @@ def main():
         cov_h = bool(th) and th in model.attack
         cov_a = bool(ta) and ta in model.attack
 
+        lado = lado_local(model, th)
         if cov_h and cov_a:
-            lam, mu = model.rates(th, ta, adv_side=1)
+            lam, mu = model.rates(th, ta, adv_side=lado)
             fuente = "modelo"
         elif mkt is not None:
             lam, mu = _implied_rates(np.array(mkt, float), model.rho)
@@ -177,6 +178,9 @@ def main():
             "pos_away": _pos_texto(res, odds._norm(away_lbl)),
             "odds": market,
         }
+        if lado < 1:
+            ctx["localia"] = (f"{home_lbl} juega de local fuera de su país (club ucraniano en el exilio): "
+                              f"el modelo le aplica media ventaja de localía.")
 
         print(f"[{k}/{len(events)}] {home_lbl} vs {away_lbl} · prior {ph:.0%}/{pd_:.0%}/{pa:.0%} "
               f"[{fuente}] — debatiendo...")
