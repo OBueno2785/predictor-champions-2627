@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T15:01:08-05:00",
+ "actualizado": "2026-11-25T15:05:14-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -997,8 +997,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Atlético sin Lookman ni Cuti Romero; Viking sin tres defensas titulares ni D'Agostino.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
@@ -1026,8 +1026,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "Liverpool sin Gakpo ni Gravenberch y con rotaciones; Brugge sin Ordóñez.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
@@ -1084,8 +1084,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Bayern sin Kane ni Olise; Lille recupera a Ethan Mbappé.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
@@ -1113,8 +1113,8 @@
    "fuente": "Modelo",
    "ajuste": true,
    "nota": "PSG sin Doué ni Kvaratskhelia (ligamento cruzado); Roma sin Pellegrini ni Rensch.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
@@ -1171,8 +1171,8 @@
    "fuente": "Modelo",
    "ajuste": false,
    "nota": "Shakhtar (local en Londres) sin Kauã Elias, Pedrinho ni Mendoza; ocho de sus jugadores quedaron retenidos en la frontera polaca.",
-   "estado": "por_empezar",
-   "real": null,
+   "estado": "en_vivo",
+   "real": "0-0",
    "minuto": null,
    "stats": {}
   },
