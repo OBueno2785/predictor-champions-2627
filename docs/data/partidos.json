@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-25T09:31:36-05:00",
+ "actualizado": "2026-11-25T11:57:29-05:00",
  "partidos": [
   {
    "ajuste": true,
@@ -1157,19 +1157,19 @@
    "visita": "Fenerbahçe",
    "escL": "shakhtar-donetsk",
    "escV": "fenerbahce",
-   "pl": 31,
-   "pe": 26,
-   "pv": 43,
+   "pl": 35,
+   "pe": 27,
+   "pv": 38,
    "marcador": "1-2",
-   "xgL": 1.33,
-   "xgV": 1.61,
+   "xgL": 1.39,
+   "xgV": 1.47,
    "q": [
-    0.0902,
-    0.119,
-    0.2241
+    0.0849,
+    0.1133,
+    0.1856
    ],
    "fuente": "Modelo",
-   "ajuste": true,
+   "ajuste": false,
    "nota": "Shakhtar (local en Londres) sin Kauã Elias, Pedrinho ni Mendoza; ocho de sus jugadores quedaron retenidos en la frontera polaca.",
    "estado": "por_empezar",
    "real": null,
